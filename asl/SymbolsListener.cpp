@@ -121,7 +121,7 @@ void SymbolsListener::enterType(AslParser::TypeContext *ctx) {
 void SymbolsListener::exitType(AslParser::TypeContext *ctx) {
   if (ctx->INT()) {
     TypesMgr::TypeId t = Types.createIntegerTy();
-    putTypeDecor(ctx, t);
+    putTypeDecor(ctx, t); // decorates to pick it up at exitVar Dec getTypeDecor(ctx->type());
   }
   DEBUG_EXIT();
 }

@@ -37,7 +37,7 @@ program : function+ EOF
         ;
 
 // A function has a name, a list of parameters and a list of statements
-function
+function //TODO: Add return types and parameters
         : FUNC ID '(' ')' declarations statements ENDFUNC
         ;
 
@@ -46,10 +46,10 @@ declarations
         ;
 
 variable_decl
-        : VAR ID ':' type
+        : VAR ID ':' type //TODO: add for >1 variables
         ;
 
-type    : INT
+type    : INT //TODO: add rest of basic types and the array type
         ;
 
 statements
@@ -62,7 +62,8 @@ statement
         : left_expr ASSIGN expr ';'           # assignStmt
           // if-then-else statement (else is optional)
         | IF expr THEN statements ENDIF       # ifStmt
-          // A function/procedure call has a list of arguments in parenthesis (possibly empty)
+          // TODO: A function/procedure call has a list of arguments in parenthesis (possibly empty)
+	  // TODO: WHILE
         | ident '(' ')' ';'                   # procCall
           // Read a variable
         | READ left_expr ';'                  # readStmt
@@ -73,18 +74,18 @@ statement
         ;
 // Grammar for left expressions (l-values in C++)
 left_expr
-        : ident
+        : ident // TODO: Add array positions
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-expr    : expr op=MUL expr                    # arithmetic
+expr    : expr op=MUL expr                    # arithmetic // TODO: Many left!
         | expr op=PLUS expr                   # arithmetic
         | expr op=EQUAL expr                  # relational
         | INTVAL                              # value
         | ident                               # exprIdent
         ;
 
-ident   : ID
+ident   : ID // Done on purpose for practicality on Semantic Analysis and Code generation
         ;
 
 //////////////////////////////////////////////////

@@ -194,9 +194,9 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
       ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
     Errors.incompatibleOperator(ctx->op);
-  TypesMgr::TypeId t = Types.createIntegerTy();
+  TypesMgr::TypeId t = Types.createIntegerTy(); //TODO: Does not check if it's anything other than Integer
   putTypeDecor(ctx, t);
-  putIsLValueDecor(ctx, false);
+  putIsLValueDecor(ctx, false); //TODO: HEY, this makes it not possible to be Left Side!
   DEBUG_EXIT();
 }
 
