@@ -50,6 +50,7 @@ variable_decl
         ;
 
 type    : INT //TODO: add rest of basic types and the array type
+	| BOOL
         ;
 
 statements
@@ -78,10 +79,14 @@ left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-expr    : expr op=MUL expr                    # arithmetic // TODO: Many left!
-        | expr op=PLUS expr                   # arithmetic
-        | expr op=EQUAL expr                  # relational
-        | INTVAL                              # value
+expr    : op=(NOT|PLUS|MINUS) expr	      # unary
+	| expr op=(MUL|DIV|MOD) expr          # arithmetic // TODO: Many left!
+        | expr op=(PLUS|MINUS) expr           # arithmetic
+        | expr op=(EQUAL|NEQUAL|LT|GT|LE|GE) expr         # relational
+        | expr op=AND expr                  # boolean
+        | expr op=OR expr                   # boolean
+	| '('expr')'			      # parenthesis
+        | INTVAL                              # value //TODO: add floats
         | ident                               # exprIdent
         ;
 
@@ -93,21 +98,40 @@ ident   : ID // Done on purpose for practicality on Semantic Analysis and Code g
 //////////////////////////////////////////////////
 
 ASSIGN    : '=' ;
-EQUAL     : '==' ;
 PLUS      : '+' ;
-MUL       : '*';
+MINUS     : '-' ;
+MUL       : '*' ;
+DIV	  : '/' ;
+MOD 	  : '%' ;
+
+EQUAL     : '==' ;
+NEQUAL	  : '!=' ;
+LT	  : '<'	 ;
+GT	  : '>'	 ;
+LE	  : '<=' ;
+GE	  : '>=' ;
+AND	  : 'and';
+OR	  : 'or' ;
+NOT	  : 'not';
+
 VAR       : 'var';
 INT       : 'int';
+BOOL      : 'bool';
+
 IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;
 ENDIF     : 'endif' ;
+
 FUNC      : 'func' ;
 ENDFUNC   : 'endfunc' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
+
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;
+FLOATVAL  : (('0'..'9')* '.' ('0'..'9')+) 
+	  | (('0'..'9')+ '.' ('0'..'9')+);
 
 // Strings (in quotes) with escape sequences
 STRING    : '"' ( ESC_SEQ | ~('\\'|'"') )* '"' ;
