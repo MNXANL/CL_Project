@@ -36,9 +36,14 @@ grammar Asl;
 program : function+ EOF
         ;
 
+// TODO: Force the existence of a sole main function. Maybe using ()! or emplacing
+//       it at the end of program
+//main    : FUNC 'main' '(' ')' declarations statements ENDFUNC
+
 // A function has a name, a list of parameters and a list of statements
 function //TODO: Add return types and parameters
-        : FUNC ID '(' ')' declarations statements ENDFUNC
+        : FUNC ID '(' ')' declarations statements ENDFUNC // void
+        | FUNC ID '(' variable_args (',' variable_args)* ')' declarations statements ret ENDFUNC
         ;
 
 declarations
@@ -46,15 +51,29 @@ declarations
         ;
 
 variable_decl
-        : VAR ID ':' type //TODO: add for >1 variables
+        : VAR ID ':' (type|array) //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp)
+    //  | VAR ID (',' ID)* ':' (type|array)     //Broken as hell, don't use
         ;
 
-type    : INT //TODO: add rest of basic types and the array type
-	| BOOL
+        
+variable_args
+        : ID ':' (type|array) //TODO: add for >1 variables
+        ;
+
+array   : ARRAY '[' (expr) ']' OF type //TODO: only INTVAL + arithmetic operations as indexes!
+        ;
+
+type    : INT //DONE: add rest of basic types and the array type
+        | FLOAT
+        | BOOL
+        | CHAR //Not implemented yet, futureproofing
         ;
 
 statements
         : (statement)*
+        ;
+        
+ret     : 'return' (expr)? ';'
         ;
 
 // The different types of instructions
@@ -63,8 +82,8 @@ statement
         : left_expr ASSIGN expr ';'           # assignStmt
           // if-then-else statement (else is optional)
         | IF expr THEN statements ENDIF       # ifStmt
-          // TODO: A function/procedure call has a list of arguments in parenthesis (possibly empty)
-	  // TODO: WHILE
+    // TODO: A function/procedure call has a list of arguments in parenthesis (possibly empty)
+    // TODO: WHILE
         | ident '(' ')' ';'                   # procCall
           // Read a variable
         | READ left_expr ';'                  # readStmt
@@ -79,14 +98,18 @@ left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-expr    : op=(NOT|PLUS|MINUS) expr	      # unary
-	| expr op=(MUL|DIV|MOD) expr          # arithmetic // TODO: Many left!
+// THINK: expr works for INTs and FLOATs (and BOOLS for relational ops). 
+//     But it won't work properly for chars/booleans/arrays... so should we 
+//     make different exprs for each different data structure?
+expr    : op=(NOT|PLUS|MINUS) expr            # unary
+        | expr op=(MUL|DIV|MOD) expr          # arithmetic // TODO: Many left!
         | expr op=(PLUS|MINUS) expr           # arithmetic
         | expr op=(EQUAL|NEQUAL|LT|GT|LE|GE) expr         # relational
-        | expr op=AND expr                  # boolean
-        | expr op=OR expr                   # boolean
-	| '('expr')'			      # parenthesis
-        | INTVAL                              # value //TODO: add floats
+        | expr op=AND expr                    # boolean
+        | expr op=OR expr                     # boolean
+        | '(' expr ')'                        # parenthesis
+        | INTVAL                              # value //DONE: add floats
+        | FLOATVAL                            # value
         | ident                               # exprIdent
         ;
 
@@ -97,32 +120,42 @@ ident   : ID // Done on purpose for practicality on Semantic Analysis and Code g
 /// Lexer Rules
 //////////////////////////////////////////////////
 
+// Arithmetic operators
 ASSIGN    : '=' ;
 PLUS      : '+' ;
 MINUS     : '-' ;
 MUL       : '*' ;
-DIV	  : '/' ;
-MOD 	  : '%' ;
+DIV       : '/' ;
+MOD       : '%' ;
 
+// Logic and comp operators
 EQUAL     : '==' ;
-NEQUAL	  : '!=' ;
-LT	  : '<'	 ;
-GT	  : '>'	 ;
-LE	  : '<=' ;
-GE	  : '>=' ;
-AND	  : 'and';
-OR	  : 'or' ;
-NOT	  : 'not';
+NEQUAL    : '!=' ;
+LT        : '<'  ;
+GT        : '>'  ;
+LE        : '<=' ;
+GE        : '>=' ;
+AND       : 'and';
+OR        : 'or' ;
+NOT       : 'not';
 
+
+// Data structures
 VAR       : 'var';
 INT       : 'int';
 BOOL      : 'bool';
+FLOAT     : 'float';
+CHAR      : 'char';
+ARRAY     : 'array';
+OF        : 'of';
 
+// Conditionals
 IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;
 ENDIF     : 'endif' ;
 
+// Standard functions
 FUNC      : 'func' ;
 ENDFUNC   : 'endfunc' ;
 READ      : 'read' ;
@@ -130,8 +163,9 @@ WRITE     : 'write' ;
 
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;
+BOOLVAL   : ('true'|'false') ;
 FLOATVAL  : (('0'..'9')* '.' ('0'..'9')+) 
-	  | (('0'..'9')+ '.' ('0'..'9')*);
+          | (('0'..'9')+ '.' ('0'..'9')*);
 
 // Strings (in quotes) with escape sequences
 STRING    : '"' ( ESC_SEQ | ~('\\'|'"') )* '"' ;
