@@ -28,11 +28,20 @@ public:
   virtual void enterVariable_decl(AslParser::Variable_declContext * /*ctx*/) override { }
   virtual void exitVariable_decl(AslParser::Variable_declContext * /*ctx*/) override { }
 
+  virtual void enterVariable_args(AslParser::Variable_argsContext * /*ctx*/) override { }
+  virtual void exitVariable_args(AslParser::Variable_argsContext * /*ctx*/) override { }
+
+  virtual void enterArray(AslParser::ArrayContext * /*ctx*/) override { }
+  virtual void exitArray(AslParser::ArrayContext * /*ctx*/) override { }
+
   virtual void enterType(AslParser::TypeContext * /*ctx*/) override { }
   virtual void exitType(AslParser::TypeContext * /*ctx*/) override { }
 
   virtual void enterStatements(AslParser::StatementsContext * /*ctx*/) override { }
   virtual void exitStatements(AslParser::StatementsContext * /*ctx*/) override { }
+
+  virtual void enterRet(AslParser::RetContext * /*ctx*/) override { }
+  virtual void exitRet(AslParser::RetContext * /*ctx*/) override { }
 
   virtual void enterAssignStmt(AslParser::AssignStmtContext * /*ctx*/) override { }
   virtual void exitAssignStmt(AslParser::AssignStmtContext * /*ctx*/) override { }
@@ -55,6 +64,9 @@ public:
   virtual void enterLeft_expr(AslParser::Left_exprContext * /*ctx*/) override { }
   virtual void exitLeft_expr(AslParser::Left_exprContext * /*ctx*/) override { }
 
+  virtual void enterBoolean(AslParser::BooleanContext * /*ctx*/) override { }
+  virtual void exitBoolean(AslParser::BooleanContext * /*ctx*/) override { }
+
   virtual void enterExprIdent(AslParser::ExprIdentContext * /*ctx*/) override { }
   virtual void exitExprIdent(AslParser::ExprIdentContext * /*ctx*/) override { }
 
@@ -63,6 +75,12 @@ public:
 
   virtual void enterRelational(AslParser::RelationalContext * /*ctx*/) override { }
   virtual void exitRelational(AslParser::RelationalContext * /*ctx*/) override { }
+
+  virtual void enterUnary(AslParser::UnaryContext * /*ctx*/) override { }
+  virtual void exitUnary(AslParser::UnaryContext * /*ctx*/) override { }
+
+  virtual void enterParenthesis(AslParser::ParenthesisContext * /*ctx*/) override { }
+  virtual void exitParenthesis(AslParser::ParenthesisContext * /*ctx*/) override { }
 
   virtual void enterValue(AslParser::ValueContext * /*ctx*/) override { }
   virtual void exitValue(AslParser::ValueContext * /*ctx*/) override { }

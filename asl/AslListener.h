@@ -26,11 +26,20 @@ public:
   virtual void enterVariable_decl(AslParser::Variable_declContext *ctx) = 0;
   virtual void exitVariable_decl(AslParser::Variable_declContext *ctx) = 0;
 
+  virtual void enterVariable_args(AslParser::Variable_argsContext *ctx) = 0;
+  virtual void exitVariable_args(AslParser::Variable_argsContext *ctx) = 0;
+
+  virtual void enterArray(AslParser::ArrayContext *ctx) = 0;
+  virtual void exitArray(AslParser::ArrayContext *ctx) = 0;
+
   virtual void enterType(AslParser::TypeContext *ctx) = 0;
   virtual void exitType(AslParser::TypeContext *ctx) = 0;
 
   virtual void enterStatements(AslParser::StatementsContext *ctx) = 0;
   virtual void exitStatements(AslParser::StatementsContext *ctx) = 0;
+
+  virtual void enterRet(AslParser::RetContext *ctx) = 0;
+  virtual void exitRet(AslParser::RetContext *ctx) = 0;
 
   virtual void enterAssignStmt(AslParser::AssignStmtContext *ctx) = 0;
   virtual void exitAssignStmt(AslParser::AssignStmtContext *ctx) = 0;
@@ -53,6 +62,9 @@ public:
   virtual void enterLeft_expr(AslParser::Left_exprContext *ctx) = 0;
   virtual void exitLeft_expr(AslParser::Left_exprContext *ctx) = 0;
 
+  virtual void enterBoolean(AslParser::BooleanContext *ctx) = 0;
+  virtual void exitBoolean(AslParser::BooleanContext *ctx) = 0;
+
   virtual void enterExprIdent(AslParser::ExprIdentContext *ctx) = 0;
   virtual void exitExprIdent(AslParser::ExprIdentContext *ctx) = 0;
 
@@ -61,6 +73,12 @@ public:
 
   virtual void enterRelational(AslParser::RelationalContext *ctx) = 0;
   virtual void exitRelational(AslParser::RelationalContext *ctx) = 0;
+
+  virtual void enterUnary(AslParser::UnaryContext *ctx) = 0;
+  virtual void exitUnary(AslParser::UnaryContext *ctx) = 0;
+
+  virtual void enterParenthesis(AslParser::ParenthesisContext *ctx) = 0;
+  virtual void exitParenthesis(AslParser::ParenthesisContext *ctx) = 0;
 
   virtual void enterValue(AslParser::ValueContext *ctx) = 0;
   virtual void exitValue(AslParser::ValueContext *ctx) = 0;

@@ -61,6 +61,7 @@ variable_args
         ;
 
 array   : ARRAY '[' (expr) ']' OF type //TODO: only INTVAL + arithmetic operations as indexes!
+	//COMMENT: is expression necessary? i think it can only be a number
         ;
 
 type    : INT //DONE: add rest of basic types and the array type
@@ -110,6 +111,7 @@ expr    : op=(NOT|PLUS|MINUS) expr            # unary
         | '(' expr ')'                        # parenthesis
         | INTVAL                              # value //DONE: add floats
         | FLOATVAL                            # value
+	| CHARVAL			      # value
         | ident                               # exprIdent
         ;
 
@@ -163,6 +165,7 @@ WRITE     : 'write' ;
 
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;
+CHARVAL	  : '\'' ('a'..'z'|'A'..'Z'|'_'|'0'..'9') '\''; //TODO: add more types?
 BOOLVAL   : ('true'|'false') ;
 FLOATVAL  : (('0'..'9')* '.' ('0'..'9')+) 
           | (('0'..'9')+ '.' ('0'..'9')*);

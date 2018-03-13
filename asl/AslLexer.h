@@ -12,10 +12,13 @@
 class  AslLexer : public antlr4::Lexer {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, ASSIGN = 5, EQUAL = 6, PLUS = 7, 
-    MUL = 8, VAR = 9, INT = 10, IF = 11, THEN = 12, ELSE = 13, ENDIF = 14, 
-    FUNC = 15, ENDFUNC = 16, READ = 17, WRITE = 18, ID = 19, INTVAL = 20, 
-    STRING = 21, COMMENT = 22, WS = 23
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    T__7 = 8, ASSIGN = 9, PLUS = 10, MINUS = 11, MUL = 12, DIV = 13, MOD = 14, 
+    EQUAL = 15, NEQUAL = 16, LT = 17, GT = 18, LE = 19, GE = 20, AND = 21, 
+    OR = 22, NOT = 23, VAR = 24, INT = 25, BOOL = 26, FLOAT = 27, CHAR = 28, 
+    ARRAY = 29, OF = 30, IF = 31, THEN = 32, ELSE = 33, ENDIF = 34, FUNC = 35, 
+    ENDFUNC = 36, READ = 37, WRITE = 38, ID = 39, INTVAL = 40, CHARVAL = 41, 
+    BOOLVAL = 42, FLOATVAL = 43, STRING = 44, COMMENT = 45, WS = 46
   };
 
   AslLexer(antlr4::CharStream *input);
