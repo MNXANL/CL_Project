@@ -73,8 +73,8 @@ void TypeCheckListener::exitProgram(AslParser::ProgramContext *ctx) {
 void TypeCheckListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
   SymTable::ScopeId sc = getScopeDecor(ctx);
-  Symbols.pushThisScope(sc);
-  // Symbols.print();
+  Symbols.pushThisScope(sc); //declaresAsErrors?
+  //Symbols.print();
 }
 void TypeCheckListener::exitFunction(AslParser::FunctionContext *ctx) {
   Symbols.popScope();
@@ -193,12 +193,31 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
   if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
       ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
-    Errors.incompatibleOperator(ctx->op);
-  TypesMgr::TypeId t = Types.createIntegerTy(); //TODO: Does not check if it's anything other than Integer
+    Errors.incompatibleOperator(ctx->op); // PROBLEMFORCLASS: THIS DOES NOT DETECT ERROR IN LINE 12?
+  TypesMgr::TypeId t;
+  if(Types.isIntegerTy(t1) and Types.isIntegerTy(t2)) t = Types.createIntegerTy();
+  else t = Types.createFloatTy();
+  //NEW BEHAVIOUR: WILL RECAST TO FLOAT IF NOT TWO INTS!
   putTypeDecor(ctx, t);
   putIsLValueDecor(ctx, false); //TODO: HEY, this makes it not possible to be Left Side!
   DEBUG_EXIT();
 }
+
+void TypeCheckListener::enterBoolean(AslParser::BooleanContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitBoolean(AslParser::BooleanContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
+  TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
+  if (((not Types.isErrorTy(t1)) and (not Types.isBooleanTy(t1))) or
+      ((not Types.isErrorTy(t2)) and (not Types.isBooleanTy(t2))))
+    Errors.incompatibleOperator(ctx->op);
+  TypesMgr::TypeId t = Types.createBooleanTy();
+  putTypeDecor(ctx, t);
+  putIsLValueDecor(ctx, false);
+  DEBUG_EXIT();
+}
+
 
 void TypeCheckListener::enterRelational(AslParser::RelationalContext *ctx) {
   DEBUG_ENTER();
@@ -220,7 +239,8 @@ void TypeCheckListener::enterValue(AslParser::ValueContext *ctx) {
   DEBUG_ENTER();
 }
 void TypeCheckListener::exitValue(AslParser::ValueContext *ctx) {
-  TypesMgr::TypeId t = Types.createIntegerTy();
+  TypesMgr::TypeId t;
+  if (true) t = Types.createIntegerTy(); // expand for different types!
   putTypeDecor(ctx, t);
   putIsLValueDecor(ctx, false);
   DEBUG_EXIT();

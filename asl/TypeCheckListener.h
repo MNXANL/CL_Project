@@ -98,6 +98,9 @@ public:
   void enterLeft_expr(AslParser::Left_exprContext *ctx);
   void exitLeft_expr(AslParser::Left_exprContext *ctx);
 
+  void enterBoolean(AslParser::BooleanContext * ctx);
+  void exitBoolean(AslParser::BooleanContext * ctx);
+
   void enterArithmetic(AslParser::ArithmeticContext *ctx);
   void exitArithmetic(AslParser::ArithmeticContext *ctx);
 
