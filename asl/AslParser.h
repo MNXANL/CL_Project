@@ -378,6 +378,7 @@ public:
     antlr4::tree::TerminalNode *INTVAL();
     antlr4::tree::TerminalNode *FLOATVAL();
     antlr4::tree::TerminalNode *CHARVAL();
+    antlr4::tree::TerminalNode *BOOLVAL();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
   };
