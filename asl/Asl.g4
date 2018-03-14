@@ -51,8 +51,7 @@ declarations
         ;
 
 variable_decl
-        : VAR ID ':' (type|array) //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp)
-    //  | VAR ID (',' ID)* ':' (type|array)     //Broken as hell, don't use
+        : VAR ID (',' ID)* ':' (type|array)
         ;
 
         
