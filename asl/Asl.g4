@@ -50,7 +50,10 @@ declarations
         ;
 
 variable_decl
-        : VAR ID (',' ID)* ':' type //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp) ESTO ES LO QUE TIENES QUE MODIFICAR EN LOS CPPS MIGUEL (AQUÍ YA DEBERÍA ESTAR BIEN
+        : VAR mult_id ':' type //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp) ESTO ES LO QUE TIENES QUE MODIFICAR EN LOS CPPS MIGUEL (AQUÍ YA DEBERÍA ESTAR BIEN
+        ;
+
+mult_id : ID (',' ID)*  //MIKE: Lowering its priority 
         ;
 
 /*        We'll check on this later
@@ -60,6 +63,8 @@ variable_decl
 
 array   : ARRAY '[' (expr) ']' OF type //TODO: only INTVAL + arithmetic operations as indexes!
 	//COMMENT: is expression necessary? i think it can only be a number
+    // MIKE counterexample (stolen from web): a[i+1] = x*2 - b[j];
+    // Just [INTVAL + arithmetic]  exprs!
         ;
 */
 type    : INT //DONE: add rest of basic types and the array type
