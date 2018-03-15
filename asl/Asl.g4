@@ -42,8 +42,7 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function //TODO: Add return types and parameters
-        : FUNC ID '(' ')' declarations statements ENDFUNC // void
-        | FUNC ID '(' variable_args (',' variable_args)* ')' declarations statements ret ENDFUNC
+        : FUNC ID '(' ')' declarations statements ENDFUNC
         ;
 
 declarations
@@ -51,19 +50,18 @@ declarations
         ;
 
 variable_decl
-        : VAR ID ':' (type|array) //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp)
-    //  | VAR ID (',' ID)* ':' (type|array)     //Broken as hell, don't use
+        : VAR ID (',' ID)* ':' type //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp) ESTO ES LO QUE TIENES QUE MODIFICAR EN LOS CPPS MIGUEL (AQUÍ YA DEBERÍA ESTAR BIEN
         ;
 
-        
-variable_args
-        : ID ':' (type|array) //TODO: add for >1 variables
-        ;
+/*        We'll check on this later
+//variable_args
+//        : ID ':' (type|array) //TODO: add for >1 variables
+//        ;
 
 array   : ARRAY '[' (expr) ']' OF type //TODO: only INTVAL + arithmetic operations as indexes!
 	//COMMENT: is expression necessary? i think it can only be a number
         ;
-
+*/
 type    : INT //DONE: add rest of basic types and the array type
         | FLOAT
         | BOOL
@@ -73,10 +71,10 @@ type    : INT //DONE: add rest of basic types and the array type
 statements
         : (statement)*
         ;
-        
+/* We do not know how or what exactly works with return, we'll have to check back later
 ret     : 'return' (expr)? ';'
         ;
-
+*/
 // The different types of instructions
 statement
           // Assignment
@@ -99,9 +97,6 @@ left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-// THINK: expr works for INTs and FLOATs (and BOOLS for relational ops). 
-//     But it won't work properly for chars/booleans/arrays... so should we 
-//     make different exprs for each different data structure?
 expr    : op=(NOT|PLUS|MINUS) expr            # unary
         | expr op=(MUL|DIV|MOD) expr          # arithmetic // TODO: Many left!
         | expr op=(PLUS|MINUS) expr           # arithmetic
