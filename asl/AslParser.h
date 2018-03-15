@@ -105,7 +105,8 @@ public:
     Variable_declContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *VAR();
-    antlr4::tree::TerminalNode *ID();
+    std::vector<antlr4::tree::TerminalNode *> ID();
+    antlr4::tree::TerminalNode* ID(size_t i);
     TypeContext *type();
     ArrayContext *array();
 
@@ -378,6 +379,7 @@ public:
     antlr4::tree::TerminalNode *INTVAL();
     antlr4::tree::TerminalNode *FLOATVAL();
     antlr4::tree::TerminalNode *CHARVAL();
+    antlr4::tree::TerminalNode *BOOLVAL();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
   };

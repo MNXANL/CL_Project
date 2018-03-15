@@ -107,6 +107,7 @@ expr    : op=(NOT|PLUS|MINUS) expr            # unary
         | INTVAL                              # value //DONE: add floats
         | FLOATVAL                            # value
 	| CHARVAL			      # value
+	| BOOLVAL			      # value
         | ident                               # exprIdent
         ;
 
@@ -161,7 +162,7 @@ WRITE     : 'write' ;
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;
 CHARVAL	  : '\'' ('a'..'z'|'A'..'Z'|'_'|'0'..'9') '\''; //TODO: add more types?
-BOOLVAL   : ('true'|'false') ;
+BOOLVAL   : ('true' | 'false') ;
 FLOATVAL  : (('0'..'9')* '.' ('0'..'9')+) 
           | (('0'..'9')+ '.' ('0'..'9')*);
 
