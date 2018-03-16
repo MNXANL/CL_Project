@@ -69,7 +69,9 @@ public:
   void enterVariable_decl(AslParser::Variable_declContext *ctx);
   void exitVariable_decl(AslParser::Variable_declContext *ctx);
 
-  void enterType(AslParser::TypeContext *ctx);
+  void enterBasictype(AslParser::BasictypeContext *ctx);
+  void exitBasictype(AslParser::BasictypeContext *ctx);
+
   void exitType(AslParser::TypeContext *ctx);
 
   void enterStatements(AslParser::StatementsContext *ctx);

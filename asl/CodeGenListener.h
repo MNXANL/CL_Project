@@ -26,7 +26,7 @@
 //             08034 Barcelona.  SPAIN
 //
 //////////////////////////////////////////////////////////////////////
-
+/*
 #pragma once
 
 #include "antlr4-runtime.h"
@@ -144,4 +144,4 @@ private:
   void putOffsetDecor (antlr4::ParserRuleContext *ctx, const std::string & o);
   void putCodeDecor   (antlr4::ParserRuleContext *ctx, const instructionList & c);
 
-};
+};*/

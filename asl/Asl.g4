@@ -42,7 +42,7 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function //TODO: Add return types and parameters
-        : FUNC ID '(' ')' declarations statements ENDFUNC
+        : FUNC ID '(' (ID ':' type (',' ID ':' type)* )? ')' (':' basictype)? declarations statements ENDFUNC
         ;
 
 declarations
@@ -50,53 +50,48 @@ declarations
         ;
 
 variable_decl
-        : VAR ID (',' ID)* ':' type //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp) // OKAY, reverted back to normal
+        : VAR ID (',' ID)* ':' type 
         ;
+type : 
+	  basictype
+	| array
+	; //TODO: las viejas normas son de basictype, reestructurar!
 
-
-/*        We'll check on this later
-//variable_args
-//        : ID ':' (type|array) //TODO: add for >1 variables
-//        ;
-
-array   : ARRAY '[' (expr) ']' OF type //TODO: only INTVAL + arithmetic operations as indexes!
-	//COMMENT: is expression necessary? i think it can only be a number
-    // MIKE counterexample (stolen from web): a[i+1] = x*2 - b[j];
-    // Just [INTVAL + arithmetic]  exprs!
-        ;
-*/
-type    : INT //DONE: add rest of basic types and the array type
+basictype: 
+          INT 
         | FLOAT
         | BOOL
-        | CHAR //Not implemented yet, futureproofing
+        | CHAR 
         ;
+
+array   : ARRAY '[' INTVAL ']' OF basictype;
 
 statements
         : (statement)*
         ;
-/* We do not know how or what exactly works with return, we'll have to check back later
-ret     : 'return' (expr)? ';'
-        ;
-*/
+
+procedure: ident '('(expr (',' expr )*)?')';
+
 // The different types of instructions
 statement
           // Assignment
         : left_expr ASSIGN expr ';'           # assignStmt
           // if-then-else statement (else is optional)
-        | IF expr THEN statements ENDIF       # ifStmt
-    // TODO: A function/procedure call has a list of arguments in parenthesis (possibly empty)
-    // TODO: WHILE
-        | ident '(' ')' ';'                   # procCall
+        | IF expr THEN statements (ELSE statements)? ENDIF       # ifStmt
+        | WHILE expr DO statements ENDWHILE   # whileLoop
+        | procedure ';'		              # procCall
           // Read a variable
         | READ left_expr ';'                  # readStmt
           // Write an expression
         | WRITE expr ';'                      # writeExpr
           // Write a string
         | WRITE STRING ';'                    # writeString
+	| RETURN (expr)? ';'		      # ret
         ;
 // Grammar for left expressions (l-values in C++)
 left_expr
-        : ident // TODO: Add array positions
+        : ident
+	| ident '[' expr ']'
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
@@ -112,6 +107,8 @@ expr    : op=(NOT|PLUS|MINUS) expr            # unary
 	| CHARVAL			      # value
 	| BOOLVAL			      # value
         | ident                               # exprIdent
+	| ident '[' expr ']'		      # arrayAccess
+	| procedure			      # exprProcedure
         ;
 
 ident   : ID // Done on purpose for practicality on Semantic Analysis and Code generation
@@ -156,16 +153,22 @@ THEN      : 'then' ;
 ELSE      : 'else' ;
 ENDIF     : 'endif' ;
 
+// LOOPS
+WHILE	  : 'while';
+DO	  : 'do';
+ENDWHILE  : 'endwhile';
+
 // Standard functions
 FUNC      : 'func' ;
+RETURN	  : 'return' ;
 ENDFUNC   : 'endfunc' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
 
+BOOLVAL   : ('true' | 'false') ;
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;
 CHARVAL	  : '\'' ('a'..'z'|'A'..'Z'|'_'|'0'..'9') '\''; //TODO: add more types?
-BOOLVAL   : ('true' | 'false') ;
 FLOATVAL  : (('0'..'9')* '.' ('0'..'9')+) 
           | (('0'..'9')+ '.' ('0'..'9')*);
 

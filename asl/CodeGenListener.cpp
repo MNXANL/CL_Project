@@ -26,7 +26,7 @@
 //             08034 Barcelona.  SPAIN
 //
 //////////////////////////////////////////////////////////////////////
-
+/*
 #include "CodeGenListener.h"
 
 #include "antlr4-runtime.h"
@@ -68,8 +68,8 @@ void CodeGenListener::exitProgram(AslParser::ProgramContext *ctx) {
 
 void CodeGenListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
-  subroutine subr(ctx->ID()->getText());
-  Code.add_subroutine(subr);
+  //subroutine subr(ctx->ID()->getText()); NEED TO REVISIT
+  //Code.add_subroutine(subr);
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
   codeCounters.reset();
@@ -150,8 +150,10 @@ void CodeGenListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
   instructionList  code2 = getCodeDecor(ctx->statements());
   std::string      label = codeCounters.newLabelIF();
   std::string labelEndIf = "endif"+label;
-  code = code1 || instruction::FJUMP(addr1, labelEndIf) ||
-         code2 || instruction::LABEL(labelEndIf);
+  code = code1 
+	|| instruction::FJUMP(addr1, labelEndIf) 
+	|| code2 
+	|| instruction::LABEL(labelEndIf);
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
@@ -362,4 +364,4 @@ void CodeGenListener::putOffsetDecor(antlr4::ParserRuleContext *ctx, const std::
 }
 void CodeGenListener::putCodeDecor(antlr4::ParserRuleContext *ctx, const instructionList & c) {
   Decorations.putCode(ctx, c);
-}
+}*/

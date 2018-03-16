@@ -74,7 +74,7 @@ void TypeCheckListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
-  Symbols.print();
+  //Symbols.print();
 }
 void TypeCheckListener::exitFunction(AslParser::FunctionContext *ctx) {
   Symbols.popScope();
@@ -120,6 +120,7 @@ void TypeCheckListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   
   if ((not Types.isErrorTy(t1)) and ((not Types.isErrorTy(t2)) and (not Types.copyableTypes(t1, t2)))){
       Errors.incompatibleAssignment(ctx->ASSIGN());
+      //std::cout << "LINE "<< ctx->ASSIGN()->getSymbol()->getLine() << ": " << t1 << ' ' << t2 << std::endl;
   }
   if ((not Types.isErrorTy(t1)) and (not getIsLValueDecor(ctx->left_expr()))){
     Errors.nonReferenceableLeftExpr(ctx->left_expr());
@@ -137,14 +138,15 @@ void TypeCheckListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
   DEBUG_EXIT();
 }
 
-void TypeCheckListener::enterProcCall(AslParser::ProcCallContext *ctx) {
+void TypeCheckListener::enterProcedure(AslParser::ProcedureContext *ctx) {
   DEBUG_ENTER();
 }
-void TypeCheckListener::exitProcCall(AslParser::ProcCallContext *ctx) {
+void TypeCheckListener::exitProcedure(AslParser::ProcedureContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
   if (not Types.isFunctionTy(t1) and not Types.isErrorTy(t1)) {
     Errors.isNotCallable(ctx->ident());
   }
+  //TODO: check parameter types in relation to function's!
   DEBUG_EXIT();
 }
 
@@ -198,9 +200,11 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
       ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
     Errors.incompatibleOperator(ctx->op);
+  //std::cout << "LINE EXPR " << ": " << t1 << ' ' << t2 << std::endl;
   TypesMgr::TypeId t;
   if(Types.isIntegerTy(t1) and Types.isIntegerTy(t2)) t = Types.createIntegerTy();
   else t = Types.createFloatTy();
+  if (Types.isErrorTy(t1) or Types.isErrorTy(t2)) t = Types.createErrorTy();
   //NEW BEHAVIOUR: WILL RECAST TO FLOAT IF NOT TWO INTS!
   putTypeDecor(ctx, t);
   putIsLValueDecor(ctx, false); //TODO: HEY, this makes it not possible to be Left Side!
