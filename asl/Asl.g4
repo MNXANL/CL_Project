@@ -50,11 +50,9 @@ declarations
         ;
 
 variable_decl
-        : VAR mult_id ':' type //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp) ESTO ES LO QUE TIENES QUE MODIFICAR EN LOS CPPS MIGUEL (AQUÍ YA DEBERÍA ESTAR BIEN
+        : VAR ID (',' ID)* ':' type //TODO: add for >1 variables (needs mod on TypeCheckListener.cpp) // OKAY, reverted back to normal
         ;
 
-mult_id : ID (',' ID)*  //MIKE: Lowering its priority 
-        ;
 
 /*        We'll check on this later
 //variable_args

@@ -111,15 +111,15 @@ void SemErrors::numberOfParameters(antlr4::ParserRuleContext *ctx) {
 }
 
 void SemErrors::incompatibleParameter(antlr4::ParserRuleContext *pCtx,
-				      unsigned int n,
-				      antlr4::ParserRuleContext *cCtx) {
+              unsigned int n,
+              antlr4::ParserRuleContext *cCtx) {
   ErrorInfo error(pCtx->getStart()->getLine(), pCtx->getStart()->getCharPositionInLine(), "Parameter #" + std::to_string(n) + " with incompatible types in call to '" + cCtx->getStart()->getText() + "'.");
   ErrorList.push_back(error);
 }
 
 void SemErrors::referenceableParameter(antlr4::ParserRuleContext *pCtx,
-				       unsigned int n,
-				       antlr4::ParserRuleContext *cCtx) {
+               unsigned int n,
+               antlr4::ParserRuleContext *cCtx) {
   ErrorInfo error(pCtx->getStart()->getLine(), pCtx->getStart()->getCharPositionInLine(), "Parameter #" + std::to_string(n) + " is expected to be referenceable in call to '" + cCtx->getStart()->getText() + "'.");
   ErrorList.push_back(error);
 }

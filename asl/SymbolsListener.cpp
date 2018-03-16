@@ -104,7 +104,7 @@ void SymbolsListener::enterVariable_decl(AslParser::Variable_declContext *ctx) {
   DEBUG_ENTER();
 }
 void SymbolsListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
-  for (auto IdChild : ctx -> mult_id() -> ID()) {
+  for (auto IdChild : ctx -> ID()) {
   
     std::string ident = IdChild -> getText(); //expand to for
     if (Symbols.findInCurrentScope(ident)) {

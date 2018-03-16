@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+
+
+
+# ANTLR4 junk
+./asl/AslBase*
+./asl/AslListener*
+./asl/AslParser*
+
+./asl/tmp*
+./asl/_antlr
+./asl/_interp

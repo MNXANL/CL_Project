@@ -97,7 +97,7 @@ void CodeGenListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
   subroutine       & subrRef = Code.get_last_subroutine();
   TypesMgr::TypeId        t1 = getTypeDecor(ctx->type());
   std::size_t           size = Types.getSizeOfType(t1);
-  for (auto IdChild : ctx -> mult_id() -> ID()) {
+  for (auto IdChild : ctx -> ID()) {
     subrRef.add_var(IdChild -> getText(), size); //Adapted for more IDs
   }
   DEBUG_EXIT();
