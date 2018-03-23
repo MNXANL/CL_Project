@@ -83,8 +83,14 @@ public:
   void enterIfStmt(AslParser::IfStmtContext *ctx);
   void exitIfStmt(AslParser::IfStmtContext *ctx);
 
+  void enterWhileLoop(AslParser::WhileLoopContext * ctx);
+  void exitWhileLoop(AslParser::WhileLoopContext * ctx);
+
   void enterProcedure(AslParser::ProcedureContext *ctx);
   void exitProcedure(AslParser::ProcedureContext *ctx);
+
+  void enterExprProcedure(AslParser::ExprProcedureContext *ctx);
+  void exitExprProcedure(AslParser::ExprProcedureContext *ctx);
 
   void enterReadStmt(AslParser::ReadStmtContext *ctx);
   void exitReadStmt(AslParser::ReadStmtContext *ctx);
@@ -118,6 +124,9 @@ public:
 
   void enterParenthesis(AslParser::ParenthesisContext * ctx);
   void exitParenthesis(AslParser::ParenthesisContext * ctx);
+
+  void enterArrayAccess(AslParser::ArrayAccessContext * ctx);
+  void exitArrayAccess(AslParser::ArrayAccessContext * ctx);
 
   void enterUnary(AslParser::UnaryContext * ctx);
   void exitUnary(AslParser::UnaryContext * ctx);

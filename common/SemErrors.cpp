@@ -81,7 +81,7 @@ void SemErrors::nonArrayInArrayAccess(antlr4::ParserRuleContext *ctx) {
 }
 
 void SemErrors::nonIntegerIndexInArrayAccess(antlr4::ParserRuleContext *ctx) {
-  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Array access witn non integer index.");
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Array access with non integer index.");
   ErrorList.push_back(error);
 }
 

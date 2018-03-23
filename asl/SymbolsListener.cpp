@@ -73,22 +73,48 @@ void SymbolsListener::exitProgram(AslParser::ProgramContext *ctx) {
 
 void SymbolsListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
-  std::string funcName = ctx->ID(0)->getText();
+  std::string funcName = ctx->ID()->getText();
   SymTable::ScopeId sc = Symbols.pushNewScope(funcName);
   putScopeDecor(ctx, sc);
 }
 void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
   Symbols.print();
+
   Symbols.popScope();
-  std::string ident = ctx->ID(0)->getText();
+  std::string ident = ctx->ID()->getText();
   if (Symbols.findInCurrentScope(ident)) {
-    Errors.declaredIdent(ctx->ID(0));
+    Errors.declaredIdent(ctx->ID());
   }
   else {
     std::vector<TypesMgr::TypeId> lParamsTy;
-    TypesMgr::TypeId tRet = Types.createVoidTy(); //TODO: modify!
+    if(ctx->params()){
+        for(auto T : ctx->params()->type()) {
+	    lParamsTy.push_back( getTypeDecor(T) );
+        }
+    }
+    TypesMgr::TypeId tRet;
+    if (!ctx->basictype()) tRet = Types.createVoidTy();
+    else {
+	tRet = getTypeDecor(ctx->basictype());
+    }
     TypesMgr::TypeId tFunc = Types.createFunctionTy(lParamsTy, tRet);
     Symbols.addFunction(ident, tFunc);
+  }
+  DEBUG_EXIT();
+}
+
+void SymbolsListener::enterParams(AslParser::ParamsContext *ctx) {
+  DEBUG_ENTER();
+}
+void SymbolsListener::exitParams(AslParser::ParamsContext *ctx){
+  for (int i=0; i< ctx->ID().size(); i++) {
+     std::string ident = ctx->ID(i)->getText();
+     if (Symbols.findInCurrentScope(ident)) {
+      Errors.declaredIdent(ctx->ID(i));
+     } else {
+	TypesMgr::TypeId t = getTypeDecor(ctx->type(i));
+	Symbols.addLocalVar(ident, t);
+     }
   }
   DEBUG_EXIT();
 }
@@ -107,14 +133,12 @@ void SymbolsListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
   for (auto IdChild : ctx -> ID()) {
   
     std::string ident = IdChild -> getText();
-    std::cout << ident << ' ';
     if (Symbols.findInCurrentScope(ident)) {
       Errors.declaredIdent(IdChild);
     }
     else {
       TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
       Symbols.addLocalVar(ident, t1);
-      std::cout << t1 << std::endl;
     }
     DEBUG_EXIT();
   }
@@ -143,6 +167,11 @@ void SymbolsListener::exitType(AslParser::TypeContext *ctx) {
     if (ctx -> basictype()) { //EXPERIMENTALLY CORRECT = BEST TYPE OF CORRECT
     	TypesMgr::TypeId t = getTypeDecor(ctx->basictype());
     	putTypeDecor(ctx, t);
+    } else {
+	TypesMgr::TypeId t = getTypeDecor(ctx->array()->basictype());
+	int size = stoi(ctx->array()->INTVAL()->getText());
+  	TypesMgr::TypeId Art = Types.createArrayTy(size, t);
+	putTypeDecor(ctx, Art);
     }
 }
 

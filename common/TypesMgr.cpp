@@ -254,8 +254,6 @@ bool TypesMgr::copyableTypes(TypeId tid1, TypeId tid2) const {
     return true;
   if (isFloatTy(tid1) and isIntegerTy(tid2))
     return true;
-  if (isFloatTy(tid2) and isIntegerTy(tid1)) //Mike
-    return true;        // TODO: kill all ifs
   return false;
 }
 

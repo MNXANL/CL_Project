@@ -20,6 +20,9 @@ public:
   virtual void enterFunction(AslParser::FunctionContext *ctx) = 0;
   virtual void exitFunction(AslParser::FunctionContext *ctx) = 0;
 
+  virtual void enterParams(AslParser::ParamsContext *ctx) = 0;
+  virtual void exitParams(AslParser::ParamsContext *ctx) = 0;
+
   virtual void enterDeclarations(AslParser::DeclarationsContext *ctx) = 0;
   virtual void exitDeclarations(AslParser::DeclarationsContext *ctx) = 0;
 

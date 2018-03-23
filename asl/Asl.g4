@@ -41,9 +41,15 @@ program : function+ EOF
 //main    : FUNC 'main' '(' ')' declarations statements ENDFUNC
 
 // A function has a name, a list of parameters and a list of statements
-function //TODO: Add return types and parameters
-        : FUNC ID '(' (ID ':' type (',' ID ':' type)* )? ')' (':' basictype)? declarations statements ENDFUNC
+function
+        : FUNC ID '(' (params)? ')' declarations statements ENDFUNC 				 
+	| FUNC ID '(' (params)? ')' ':' basictype declarations statements RETURN expr ';' ENDFUNC
         ;
+
+params
+	: ID ':' type (',' ID ':' type)*
+	;
+
 
 declarations
         : (variable_decl)*

@@ -116,7 +116,7 @@ void TypeCheckListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->left_expr());
   TypesMgr::TypeId t2 = getTypeDecor(ctx->expr());
   
-  //std::cout << "LINE "<< ctx->ASSIGN()->getSymbol()->getLine() << ": " << t1 << ' ' << t2 << std::endl; //COMMENT THIS!
+  std::cout << "LINE "<< ctx->ASSIGN()->getSymbol()->getLine() << ": "; Types.dump(t1); std::cout << ' '; Types.dump(t2); std::cout << std::endl; 
   
   if ((not Types.isErrorTy(t1)) and ((not Types.isErrorTy(t2)) and (not Types.copyableTypes(t1, t2)))){
       Errors.incompatibleAssignment(ctx->ASSIGN());
@@ -137,6 +137,16 @@ void TypeCheckListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
     Errors.booleanRequired(ctx);
   DEBUG_EXIT();
 }
+void TypeCheckListener::enterWhileLoop(AslParser::WhileLoopContext * ctx) {
+  DEBUG_ENTER();
+}
+
+void TypeCheckListener::exitWhileLoop(AslParser::WhileLoopContext * ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
+  if ((not Types.isErrorTy(t1)) and (not Types.isBooleanTy(t1)))
+    Errors.booleanRequired(ctx);
+  DEBUG_EXIT();
+}
 
 void TypeCheckListener::enterProcedure(AslParser::ProcedureContext *ctx) {
   DEBUG_ENTER();
@@ -146,9 +156,21 @@ void TypeCheckListener::exitProcedure(AslParser::ProcedureContext *ctx) {
   if (not Types.isFunctionTy(t1) and not Types.isErrorTy(t1)) {
     Errors.isNotCallable(ctx->ident());
   }
+  putTypeDecor(ctx, Types.getFuncReturnType(t1));
   //TODO: check parameter types in relation to function's!
   DEBUG_EXIT();
 }
+
+
+void TypeCheckListener::enterExprProcedure(AslParser::ExprProcedureContext *ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitExprProcedure(AslParser::ExprProcedureContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->procedure());
+  putTypeDecor(ctx, t1);
+  DEBUG_EXIT();
+}
+
 
 void TypeCheckListener::enterReadStmt(AslParser::ReadStmtContext *ctx) {
   DEBUG_ENTER();
@@ -185,9 +207,52 @@ void TypeCheckListener::enterLeft_expr(AslParser::Left_exprContext *ctx) {
 }
 void TypeCheckListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
-  putTypeDecor(ctx, t1);
-  bool b = getIsLValueDecor(ctx->ident());
-  putIsLValueDecor(ctx, b);
+  if (ctx->expr()) {
+	  bool good = true;
+	  if (not Types.isArrayTy(t1)) {
+		Errors.nonArrayInArrayAccess(ctx);
+		good = false;
+	  }
+	  if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
+                Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+		good = false;
+	  } 
+	  if (good) {
+		putTypeDecor(ctx, Types.getArrayElemType(t1) );
+	  	bool b = getIsLValueDecor(ctx->ident());
+	  	putIsLValueDecor(ctx, b);
+	  }
+  } else {
+	  //control of assignment to arrays ?
+	  putTypeDecor(ctx, t1);
+	  bool b = getIsLValueDecor(ctx->ident());
+	  putIsLValueDecor(ctx, b);
+  }
+  DEBUG_EXIT();
+}
+/*
+bool         isArrayTy        (TypeId tid) const;
+  unsigned int getArraySize     (TypeId tid) const;
+  TypeId       getArrayElemType (TypeId tid) const;
+
+*/
+void TypeCheckListener::enterArrayAccess(AslParser::ArrayAccessContext * ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitArrayAccess(AslParser::ArrayAccessContext * ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
+  bool good = true;
+  if (not Types.isArrayTy(t1)) {
+	Errors.nonArrayInArrayAccess(ctx);
+	good = false;
+  }
+  if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
+        Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+	good = false;
+  } 
+  if (good) {
+	putTypeDecor(ctx, Types.getArrayElemType(t1) );
+  }
   DEBUG_EXIT();
 }
 
@@ -306,6 +371,8 @@ void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
   }
   DEBUG_EXIT();
 }
+
+
 
 // void TypeCheckListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();

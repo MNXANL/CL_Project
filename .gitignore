@@ -31,7 +31,9 @@
 *.out
 *.app
 
-
+# Java junk
+*.java
+*.class
 
 # ANTLR4 junk
 ./asl/AslBase*
