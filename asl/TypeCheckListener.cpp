@@ -116,7 +116,7 @@ void TypeCheckListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->left_expr());
   TypesMgr::TypeId t2 = getTypeDecor(ctx->expr());
   
-  std::cout << "LINE "<< ctx->ASSIGN()->getSymbol()->getLine() << ": "; Types.dump(t1); std::cout << ' '; Types.dump(t2); std::cout << std::endl; 
+  //std::cout << "LINE "<< ctx->ASSIGN()->getSymbol()->getLine() << ": "; Types.dump(t1); std::cout << ' '; Types.dump(t2); std::cout << std::endl; 
   
   if ((not Types.isErrorTy(t1)) and ((not Types.isErrorTy(t2)) and (not Types.copyableTypes(t1, t2)))){
       Errors.incompatibleAssignment(ctx->ASSIGN());
@@ -152,12 +152,29 @@ void TypeCheckListener::enterProcedure(AslParser::ProcedureContext *ctx) {
   DEBUG_ENTER();
 }
 void TypeCheckListener::exitProcedure(AslParser::ProcedureContext *ctx) {
+  //std::cout << "CHIVATO" << std::endl;
   TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
-  if (not Types.isFunctionTy(t1) and not Types.isErrorTy(t1)) {
+  //std::cout << "Chivato2: " << Types.to_string(t1) << std::endl;
+  
+  if (not Types.isErrorTy(t1) and not Types.isFunctionTy(t1)) {
     Errors.isNotCallable(ctx->ident());
+  } else if (not Types.isErrorTy(t1)){
+	  unsigned int n=Types.getNumOfParameters(t1);
+	  std::vector<AslParser::ExprContext *> expressions = ctx->expr();
+	  if(n!=expressions.size()) Errors.numberOfParameters(ctx);
+	  else {
+		for (unsigned int i=0; i<n; i++) {
+			if(not Types.copyableTypes(Types.getParameterType(t1,i), getTypeDecor(expressions[i])) and not Types.isErrorTy(getTypeDecor(expressions[i]))) 
+				Errors.incompatibleParameter(expressions[i], i+1, ctx);
+		}
+	  }
+	  //
+	  putTypeDecor(ctx, Types.getFuncReturnType(t1));
+	  //std::cout << "CHIVATO END else" << std::endl;
+  } else {
+          putTypeDecor(ctx,t1);
   }
-  putTypeDecor(ctx, Types.getFuncReturnType(t1));
-  //TODO: check parameter types in relation to function's!
+  //std::cout << "CHIVATO END" << std::endl;
   DEBUG_EXIT();
 }
 
@@ -167,7 +184,11 @@ void TypeCheckListener::enterExprProcedure(AslParser::ExprProcedureContext *ctx)
 }
 void TypeCheckListener::exitExprProcedure(AslParser::ExprProcedureContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->procedure());
+  if (Types.isVoidTy(t1) and not Types.isErrorTy(t1)) {
+	Errors.isNotFunction(ctx);
+  } else {
   putTypeDecor(ctx, t1);
+  }
   DEBUG_EXIT();
 }
 
@@ -194,6 +215,24 @@ void TypeCheckListener::exitWriteExpr(AslParser::WriteExprContext *ctx) {
     Errors.readWriteRequireBasic(ctx);
   DEBUG_EXIT();
 }
+void TypeCheckListener::enterRet(AslParser::RetContext * ctx) {
+  DEBUG_ENTER();
+}
+void TypeCheckListener::exitRet(AslParser::RetContext * ctx) {
+  TypesMgr::TypeId t1;
+  if (not ctx->expr()) {
+     t1 = Types.createVoidTy();
+  } else {
+     t1 = getTypeDecor(ctx->expr());
+  }
+  //get function type
+  TypesMgr::TypeId t2 = Types.getFuncReturnType(Symbols.getCurrentFunctionTy());
+  if (not Types.isErrorTy(t1) and not Types.isErrorTy(t2) and not Types.copyableTypes (t2,t1)) {
+     if (ctx->expr()) Errors.incompatibleReturn(ctx->expr());
+     else Errors.incompatibleReturn(ctx);
+  }
+  DEBUG_EXIT();
+}
 
 void TypeCheckListener::enterWriteString(AslParser::WriteStringContext *ctx) {
   DEBUG_ENTER();
@@ -209,18 +248,21 @@ void TypeCheckListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
   if (ctx->expr()) {
 	  bool good = true;
-	  if (not Types.isArrayTy(t1)) {
-		Errors.nonArrayInArrayAccess(ctx);
-		good = false;
-	  }
-	  if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
-                Errors.nonIntegerIndexInArrayAccess(ctx->expr());
-		good = false;
-	  } 
-	  if (good) {
-		putTypeDecor(ctx, Types.getArrayElemType(t1) );
-	  	bool b = getIsLValueDecor(ctx->ident());
-	  	putIsLValueDecor(ctx, b);
+	  if (Types.isErrorTy(t1) or Types.isErrorTy(getTypeDecor(ctx->expr()))) putTypeDecor(ctx, Types.createErrorTy());
+          else{
+		  if (not Types.isArrayTy(t1)) {
+			Errors.nonArrayInArrayAccess(ctx);
+			good = false;
+		  }
+		  if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
+		        Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+			good = false;
+		  } 
+		  if (good) {
+			putTypeDecor(ctx, Types.getArrayElemType(t1) );
+		  	bool b = getIsLValueDecor(ctx->ident());
+		  	putIsLValueDecor(ctx, b);
+		  }
 	  }
   } else {
 	  //control of assignment to arrays ?
@@ -242,16 +284,22 @@ void TypeCheckListener::enterArrayAccess(AslParser::ArrayAccessContext * ctx) {
 void TypeCheckListener::exitArrayAccess(AslParser::ArrayAccessContext * ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
   bool good = true;
-  if (not Types.isArrayTy(t1)) {
-	Errors.nonArrayInArrayAccess(ctx);
-	good = false;
-  }
-  if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
-        Errors.nonIntegerIndexInArrayAccess(ctx->expr());
-	good = false;
-  } 
-  if (good) {
-	putTypeDecor(ctx, Types.getArrayElemType(t1) );
+  //std::cout << Types.to_string(getTypeDecor(ctx->expr())) << std::endl;
+  if (Types.isErrorTy(t1) or Types.isErrorTy(getTypeDecor(ctx->expr()))) {
+	putTypeDecor(ctx, Types.createErrorTy());
+	//std::cout << "CHIVATO3" << std::endl;
+  } else {
+	  if (not Types.isArrayTy(t1)) {
+		Errors.nonArrayInArrayAccess(ctx);
+		good = false;
+	  }
+	  if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
+		Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+		good = false;
+	  } 
+	  if (good) {
+		putTypeDecor(ctx, Types.getArrayElemType(t1) );
+	  }
   }
   DEBUG_EXIT();
 }
@@ -263,16 +311,19 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
   TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
   if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
-      ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
-    Errors.incompatibleOperator(ctx->op);
-  //std::cout << "LINE EXPR " << ": " << t1 << ' ' << t2 << std::endl;
-  TypesMgr::TypeId t;
-  if(Types.isIntegerTy(t1) and Types.isIntegerTy(t2)) t = Types.createIntegerTy();
-  else t = Types.createFloatTy();
-  if (Types.isErrorTy(t1) or Types.isErrorTy(t2)) t = Types.createErrorTy();
-  //NEW BEHAVIOUR: WILL RECAST TO FLOAT IF NOT TWO INTS!
-  putTypeDecor(ctx, t);
-  putIsLValueDecor(ctx, false); //TODO: HEY, this makes it not possible to be Left Side!
+      ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2)))) {
+	Errors.incompatibleOperator(ctx->op);
+	putTypeDecor(ctx, Types.createErrorTy());
+	//putIsLValueDecor(ctx, false);
+  } else {
+	  TypesMgr::TypeId t;
+	  if(Types.isIntegerTy(t1) and Types.isIntegerTy(t2)) t = Types.createIntegerTy();
+	  else t = Types.createFloatTy();
+	  if (Types.isErrorTy(t1) or Types.isErrorTy(t2)) t = Types.createErrorTy();
+	  //NEW BEHAVIOUR: WILL RECAST TO FLOAT IF NOT TWO INTS!
+	  putTypeDecor(ctx, t);
+	  putIsLValueDecor(ctx, false);
+  }
   DEBUG_EXIT();
 }
 

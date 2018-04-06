@@ -66,7 +66,7 @@ void SymbolsListener::enterProgram(AslParser::ProgramContext *ctx) {
   putScopeDecor(ctx, sc);
 }
 void SymbolsListener::exitProgram(AslParser::ProgramContext *ctx) {
-  Symbols.print();
+  //Symbols.print();
   Symbols.popScope();
   DEBUG_EXIT();
 }
@@ -78,7 +78,7 @@ void SymbolsListener::enterFunction(AslParser::FunctionContext *ctx) {
   putScopeDecor(ctx, sc);
 }
 void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
-  Symbols.print();
+  //Symbols.print();
 
   Symbols.popScope();
   std::string ident = ctx->ID()->getText();

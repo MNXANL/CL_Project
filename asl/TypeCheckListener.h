@@ -128,6 +128,9 @@ public:
   void enterArrayAccess(AslParser::ArrayAccessContext * ctx);
   void exitArrayAccess(AslParser::ArrayAccessContext * ctx);
 
+  void enterRet(AslParser::RetContext * ctx);
+  void exitRet(AslParser::RetContext * ctx);
+
   void enterUnary(AslParser::UnaryContext * ctx);
   void exitUnary(AslParser::UnaryContext * ctx);
 
