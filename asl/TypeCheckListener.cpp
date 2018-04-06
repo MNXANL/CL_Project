@@ -282,10 +282,11 @@ void TypeCheckListener::enterArrayAccess(AslParser::ArrayAccessContext * ctx) {
   DEBUG_ENTER();
 }
 void TypeCheckListener::exitArrayAccess(AslParser::ArrayAccessContext * ctx) {
-  TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->ident()); //TODO: HERE AND IN LEFTEXPR
+	//TODO: infer type even if inside is not integer!
   bool good = true;
   //std::cout << Types.to_string(getTypeDecor(ctx->expr())) << std::endl;
-  if (Types.isErrorTy(t1) or Types.isErrorTy(getTypeDecor(ctx->expr()))) {
+  if (Types.isErrorTy(t1) or Types.isErrorTy(getTypeDecor(ctx->expr()))) { //change to iserrorty(t1) only?
 	putTypeDecor(ctx, Types.createErrorTy());
 	//std::cout << "CHIVATO3" << std::endl;
   } else {
@@ -315,15 +316,14 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
 	Errors.incompatibleOperator(ctx->op);
 	putTypeDecor(ctx, Types.createErrorTy());
 	//putIsLValueDecor(ctx, false);
-  } else {
-	  TypesMgr::TypeId t;
-	  if(Types.isIntegerTy(t1) and Types.isIntegerTy(t2)) t = Types.createIntegerTy();
-	  else t = Types.createFloatTy();
-	  if (Types.isErrorTy(t1) or Types.isErrorTy(t2)) t = Types.createErrorTy();
-	  //NEW BEHAVIOUR: WILL RECAST TO FLOAT IF NOT TWO INTS!
-	  putTypeDecor(ctx, t);
-	  putIsLValueDecor(ctx, false);
   }
+  TypesMgr::TypeId t;
+  if(Types.isIntegerTy(t1) and Types.isIntegerTy(t2)) t = Types.createIntegerTy(); //FAKE!
+  else t = Types.createFloatTy();
+  if (Types.isErrorTy(t1) or Types.isErrorTy(t2)) t = Types.createErrorTy();
+  //TODO: CHANGE! THIS SHOULD BE: INFER FROM OPERATOR! Can it actually do so?
+  putTypeDecor(ctx, t);
+  putIsLValueDecor(ctx, false);
   DEBUG_EXIT();
 }
 
@@ -336,7 +336,7 @@ void TypeCheckListener::exitBoolean(AslParser::BooleanContext *ctx) {
   if (((not Types.isErrorTy(t1)) and (not Types.isBooleanTy(t1))) or
       ((not Types.isErrorTy(t2)) and (not Types.isBooleanTy(t2))))
     Errors.incompatibleOperator(ctx->op);
-  TypesMgr::TypeId t = Types.createBooleanTy();
+  TypesMgr::TypeId t = Types.createBooleanTy(); //inference
   putTypeDecor(ctx, t);
   putIsLValueDecor(ctx, false);
   DEBUG_EXIT();
