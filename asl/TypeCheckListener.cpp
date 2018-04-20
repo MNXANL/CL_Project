@@ -248,15 +248,16 @@ void TypeCheckListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
   if (ctx->expr()) {
 	  bool good = true;
-	  if (Types.isErrorTy(t1) or Types.isErrorTy(getTypeDecor(ctx->expr()))) putTypeDecor(ctx, Types.createErrorTy());
-          else{
+	  if (Types.isErrorTy(t1) or Types.isErrorTy(getTypeDecor(ctx->expr())))
+      putTypeDecor(ctx, Types.createErrorTy());
+    else{
 		  if (not Types.isArrayTy(t1)) {
 			Errors.nonArrayInArrayAccess(ctx);
 			good = false;
 		  }
 		  if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
-		        Errors.nonIntegerIndexInArrayAccess(ctx->expr());
-			good = false;
+		    Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+			  good = false;
 		  } 
 		  if (good) {
 			putTypeDecor(ctx, Types.getArrayElemType(t1) );
