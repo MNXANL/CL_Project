@@ -284,24 +284,32 @@ void TypeCheckListener::enterArrayAccess(AslParser::ArrayAccessContext * ctx) {
 void TypeCheckListener::exitArrayAccess(AslParser::ArrayAccessContext * ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->ident()); //TODO: HERE AND IN LEFTEXPR
 	//TODO: infer type even if inside is not integer!
-  bool good = true;
   //std::cout << Types.to_string(getTypeDecor(ctx->expr())) << std::endl;
-  if (Types.isErrorTy(t1) or Types.isErrorTy(getTypeDecor(ctx->expr()))) { //change to iserrorty(t1) only?
-	putTypeDecor(ctx, Types.createErrorTy());
+  if (Types.isErrorTy(t1)) { 
+  //change to iserrorty(t1) only?
+	 putTypeDecor(ctx, Types.createErrorTy());
 	//std::cout << "CHIVATO3" << std::endl;
   } else {
 	  if (not Types.isArrayTy(t1)) {
-		Errors.nonArrayInArrayAccess(ctx);
-		good = false;
-	  }
-	  if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
-		Errors.nonIntegerIndexInArrayAccess(ctx->expr());
-		good = false;
-	  } 
-	  if (good) {
-		putTypeDecor(ctx, Types.getArrayElemType(t1) );
-	  }
+  		Errors.nonArrayInArrayAccess(ctx);
+      putTypeDecor(ctx, Types.createErrorTy());
+		  
+    }
+    
+    if (not Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
+      Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+      if ( Types.isArrayTy(t1)) {
+        putTypeDecor(ctx, Types.getArrayElemType(t1) );
+      }
+    } 
+
+    if ( Types.isArrayTy(t1) and Types.isIntegerTy(getTypeDecor(ctx->expr())) ) {
+      putTypeDecor(ctx, Types.getArrayElemType(t1) );
+    } 
   }
+  //Types.dump( getTypeDecor(ctx) ); std::cout << "\n";
+  //Types.dump( t1 ); std::cout << "\n";
+  //Types.dump( getTypeDecor(ctx->expr()) ); std::cout << "\n";
   DEBUG_EXIT();
 }
 
@@ -314,13 +322,15 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
       ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2)))) {
 	Errors.incompatibleOperator(ctx->op);
-	putTypeDecor(ctx, Types.createErrorTy());
+	//putTypeDecor(ctx, Types.createErrorTy());
 	//putIsLValueDecor(ctx, false);
   }
   TypesMgr::TypeId t;
-  if(Types.isIntegerTy(t1) and Types.isIntegerTy(t2)) t = Types.createIntegerTy(); //FAKE!
-  else t = Types.createFloatTy();
-  if (Types.isErrorTy(t1) or Types.isErrorTy(t2)) t = Types.createErrorTy();
+  if(Types.isFloatTy(t1) or Types.isFloatTy(t2)) 
+    t = Types.createFloatTy();
+  else 
+    t = Types.createIntegerTy(); 
+  //if (Types.isErrorTy(t1) or Types.isErrorTy(t2)) t = Types.createErrorTy();
   //TODO: CHANGE! THIS SHOULD BE: INFER FROM OPERATOR! Can it actually do so?
   putTypeDecor(ctx, t);
   putIsLValueDecor(ctx, false);

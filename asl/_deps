@@ -474,7 +474,6 @@ AslLexer.o: AslLexer.cpp AslLexer.h \
  /usr/local/include/antlr4-runtime/tree/xpath/XPathTokenElement.h \
  /usr/local/include/antlr4-runtime/tree/xpath/XPathWildcardAnywhereElement.h \
  /usr/local/include/antlr4-runtime/tree/xpath/XPathWildcardElement.h
-CodeGenListener.o: CodeGenListener.cpp
 AslParser.o: AslParser.cpp AslListener.h \
  /usr/local/include/antlr4-runtime/antlr4-runtime.h \
  /usr/local/include/antlr4-runtime/antlr4-common.h \
@@ -951,6 +950,7 @@ TypeCheckListener.o: TypeCheckListener.cpp TypeCheckListener.h \
  AslBaseListener.h AslListener.h AslParser.h ../common/TypesMgr.h \
  ../common/SymTable.h ../common/TreeDecoration.h ../common/code.h \
  ../common/SemErrors.h ../common/debug.h
+CodeGenListener.o: CodeGenListener.cpp
 SymbolsListener.o: SymbolsListener.cpp SymbolsListener.h \
  /usr/local/include/antlr4-runtime/antlr4-runtime.h \
  /usr/local/include/antlr4-runtime/antlr4-common.h \
