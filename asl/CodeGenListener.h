@@ -116,6 +116,16 @@ public:
   void enterIdent(AslParser::IdentContext *ctx);
   void exitIdent(AslParser::IdentContext *ctx);
 
+  void enterParenthesis(AslParser::ParenthesisContext *ctx);
+  void exitParenthesis(AslParser::ParenthesisContext *ctx); 
+
+  void enterBoolean(AslParser::BooleanContext *ctx);
+  void exitBoolean(AslParser::BooleanContext *ctx);
+
+  void enterUnary(AslParser::UnaryContext *ctx);
+  void exitUnary(AslParser::UnaryContext *ctx);
+
+
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
   // void visitTerminal(antlr4::tree::TerminalNode *node);

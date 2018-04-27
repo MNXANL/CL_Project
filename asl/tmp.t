@@ -1,36 +1,48 @@
 function main
   vars
-    a 1
-    b 1
+    n 1
+    f 1
+    aux 1
     end 1
-    pi 1
   endvars
 
-   %1 = 12
-   a = %1
-   %2 = 5
-   %3 = a * %2
-   %6 = a * 
-   %7 = %3 + %6
-   b = %7
-   end = 
-   %11 = 3.3
-   %12 = 1
-   %13 = %12 + a
-   %14 = %11 + %13
-   %16 =  + a
-   %17 = %14 + %16
-   pi = %17
-   writei 
-   writeln
-   %20 = a * b
-   writei %20
-   writeln
-   %22 = 2
-   %23 = %22 * pi
-   writei %23
-   writeln
-   return
+     readi n
+     aux = n
+     %1 = 0
+     %2 = n < %1
+     ifFalse %2 goto endif1
+     %3 = 'n'
+     writec %3
+     %3 = ' '
+     writec %3
+     %3 = '>'
+     writec %3
+     %3 = '='
+     writec %3
+     %3 = ' '
+     writec %3
+     %3 = '0'
+     writec %3
+     %3 = '!'
+     writec %3
+     writeln
+     %4 = 1
+     end = %4
+  label endif1 :
+     %5 = 1
+     f = %5
+     %13 = 0
+     %14 = end == %13
+     ifFalse %14 goto endif2
+     writei aux
+     %15 = '!'
+     writec %15
+     %15 = '='
+     writec %15
+     writei f
+     writeln
+  label endif2 :
+     return
 endfunction
 
 
