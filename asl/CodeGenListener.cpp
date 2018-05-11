@@ -39,7 +39,7 @@
 #include <cstddef>    // std::size_t
 
 // uncomment the following line to enable debugging messages with DEBUG*
-//#define DEBUG_BUILD
+// #define DEBUG_BUILD
 #include "../common/debug.h"
 
 // using namespace std;
@@ -69,6 +69,14 @@ void CodeGenListener::exitProgram(AslParser::ProgramContext *ctx) {
 void CodeGenListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
   subroutine subr(ctx->ID()->getText()); //NEED TO REVISIT
+  if (ctx->basictype()) {
+    subr.add_param("_result");
+  }
+  if (ctx->params()){
+    for (auto iCtx : ctx->params()->ID()) {
+      subr.add_param(iCtx->getText());
+    }
+  }
   Code.add_subroutine(subr);
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
@@ -77,9 +85,14 @@ void CodeGenListener::enterFunction(AslParser::FunctionContext *ctx) {
 void CodeGenListener::exitFunction(AslParser::FunctionContext *ctx) {
   subroutine & subrRef = Code.get_last_subroutine();
   instructionList code = getCodeDecor(ctx->statements());
+  if (ctx->expr()) {
+      instructionList codeExpr = getCodeDecor(ctx->expr());
+      std::string temp = getAddrDecor(ctx->expr());
+      code = code || codeExpr || instruction::LOAD("_result", temp);
+  }
   code = code || instruction::RETURN();
   subrRef.set_instructions(code);
-  Symbols.popScope();
+  Symbols.popScope(); //TODO: other returns inside same function (= more than 1 return) seems unneeded
   DEBUG_EXIT();
 }
 
@@ -161,13 +174,51 @@ void CodeGenListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
   //Add code for else
   std::string      label = codeCounters.newLabelIF();
   std::string labelEndIf = "endif"+label;
-  code = code1 
-	|| instruction::FJUMP(addr1, labelEndIf) 
-	|| code2 
-	|| instruction::LABEL(labelEndIf);
+   if (ctx->statements().size() == 1) {
+      code = code1 
+	    || instruction::FJUMP(addr1, labelEndIf) 
+	    || code2 
+        || instruction::LABEL(labelEndIf);
+   }
+   else {
+        instructionList  code3 = getCodeDecor(ctx->statements(1));
+        std::string labelThen = "then"+label;// codeCounters.newLabelIF();
+        code = code1 
+	    || instruction::FJUMP(addr1, labelThen) 
+	    || code2 
+	    || instruction::UJUMP(labelEndIf)
+        || instruction::LABEL(labelThen)
+        || code3
+        || instruction::LABEL(labelEndIf);
+    }
+    
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
+
+
+void CodeGenListener::enterWhileLoop(AslParser::WhileLoopContext *ctx) {
+    DEBUG_ENTER();
+}
+
+void CodeGenListener::exitWhileLoop(AslParser::WhileLoopContext *ctx) {
+  std::string      label = codeCounters.newLabelWHILE();
+  std::string      labelDo = "do" + label;
+  std::string      labelWhile = "while" + label;
+  instructionList code = instruction::UJUMP(labelWhile) || instruction::LABEL(labelDo);
+    
+  code = code || getCodeDecor(ctx->statements());
+  
+  code = code || instruction::LABEL(labelWhile) || getCodeDecor(ctx->expr());
+  std::string addrExpr = getAddrDecor(ctx->expr());
+  std::string tmp = "%" + codeCounters.newTEMP();
+  
+  code = code || instruction::NOT(tmp, addrExpr) || instruction::FJUMP(tmp, labelDo);
+  
+  putCodeDecor(ctx, code);
+  DEBUG_EXIT();
+}
+
 
 void CodeGenListener::enterProcCall(AslParser::ProcCallContext *ctx) {
   DEBUG_ENTER();
@@ -462,6 +513,60 @@ void CodeGenListener::exitIdent(AslParser::IdentContext *ctx) {
   DEBUG_EXIT();
 }
 
+
+
+
+
+
+void CodeGenListener::enterProcedure(AslParser::ProcedureContext *ctx) {
+    DEBUG_ENTER();
+}
+void CodeGenListener::exitProcedure(AslParser::ProcedureContext *ctx) {
+    instructionList code = instructionList();
+    if (not Types.isVoidFunction(Symbols.getType(ctx->ident()->ID()->getText())) )
+        code = code || instruction::PUSH();
+    
+    for (auto eCtx : ctx->expr()) {
+        //TODO: implicit casting!
+        std::string addr = getAddrDecor(eCtx);
+        instructionList codeTmp = getCodeDecor(eCtx);
+        code = code || codeTmp || instruction::PUSH(addr) ;
+    }
+    code = code || instruction::CALL(ctx->ident()->ID()->getText());
+    for (auto eCtx : ctx->expr()) {
+        code = code || instruction::POP() ;
+    }
+    if (not Types.isVoidFunction(Symbols.getType(ctx->ident()->ID()->getText())) ){
+        std::string addr = "%" + codeCounters.newTEMP();
+        code = code || instruction::POP(addr);
+        putAddrDecor(ctx, addr);
+    }
+    putCodeDecor(ctx, code);
+    DEBUG_EXIT();
+}
+
+void CodeGenListener::enterRet(AslParser::RetContext *ctx){
+  DEBUG_ENTER();
+}
+void CodeGenListener::exitRet(AslParser::RetContext *ctx){
+  DEBUG_EXIT();
+}
+
+void CodeGenListener::enterExprProcedure(AslParser::ExprProcedureContext *ctx){
+  DEBUG_ENTER();
+}
+  
+void CodeGenListener::exitExprProcedure(AslParser::ExprProcedureContext *ctx){
+  std::string     addr = getAddrDecor(ctx->procedure());
+  instructionList code = getCodeDecor(ctx->procedure());
+  
+  putAddrDecor(ctx, addr);
+  putCodeDecor(ctx, code);
+  
+  DEBUG_EXIT();
+}
+
+
 void CodeGenListener::enterParenthesis(AslParser::ParenthesisContext  *ctx) {
   DEBUG_ENTER();
 }
@@ -536,6 +641,8 @@ void CodeGenListener::exitUnary(AslParser::UnaryContext *ctx){
   DEBUG_EXIT();
 }
 
+
+/* WHILE LOOPS AND ELSE CHAINS MUST BE IMPLEMENTED */
 
 // void CodeGenListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();

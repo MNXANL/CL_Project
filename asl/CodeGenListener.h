@@ -112,7 +112,16 @@ public:
 
   void enterExprIdent(AslParser::ExprIdentContext *ctx);
   void exitExprIdent(AslParser::ExprIdentContext *ctx);
+  
+  void enterExprProcedure(AslParser::ExprProcedureContext *ctx);
+  void exitExprProcedure(AslParser::ExprProcedureContext *ctx);
 
+  void enterProcedure(AslParser::ProcedureContext *ctx);
+  void exitProcedure(AslParser::ProcedureContext *ctx);
+  
+  void enterRet(AslParser::RetContext *ctx);
+  void exitRet(AslParser::RetContext *ctx);
+  
   void enterIdent(AslParser::IdentContext *ctx);
   void exitIdent(AslParser::IdentContext *ctx);
 
@@ -124,6 +133,9 @@ public:
 
   void enterUnary(AslParser::UnaryContext *ctx);
   void exitUnary(AslParser::UnaryContext *ctx);
+
+  void enterWhileLoop(AslParser::WhileLoopContext *ctx);
+  void exitWhileLoop(AslParser::WhileLoopContext *ctx);
 
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
