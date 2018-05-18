@@ -311,6 +311,7 @@ void CodeGenListener::enterArrayAccess(AslParser::ArrayAccessContext *ctx){
   DEBUG_ENTER();
 }
 void CodeGenListener::exitArrayAccess(AslParser::ArrayAccessContext *ctx){ 
+
   DEBUG_EXIT();
 }
 
@@ -320,12 +321,25 @@ void CodeGenListener::enterLeft_expr(AslParser::Left_exprContext *ctx) {
   DEBUG_ENTER();
 }
 void CodeGenListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
-  //if () {
-      putAddrDecor(ctx, getAddrDecor(ctx->ident()));
+  // RECYCLE
+  if ( ctx->expr() ) {
+    TypesMgr::TypeId t1 = getArrayElemType(getTypeDecor(ctx->ident()));
+    int SIZE = getSizeOfType(t1);
+    instructionList code = getCodeDecor(ctx->expr());
+    std::string temp = "%"+codeCounters.newTEMP();
+    std::string offset = "%"+codeCounters.newTEMP();
+    std::string addr = getAddrDecor(ctx->expr());
+    code = code || instruction::ILOAD(temp, SIZE);
+    code = code || instruction::MUL(offset, temp, addr); //Fix me
+    putOffsetDecor(ctx, offset); //TODO: not good, probably will have to change
+    putAddrDecor(ctx, getAddrDecor(ctx->ident()));
+    putCodeDecor(ctx, code);
+  }
+  else {
+    putAddrDecor(ctx, getAddrDecor(ctx->ident()));
     putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
     putCodeDecor(ctx, getCodeDecor(ctx->ident()));
-  //  }
-  //else {}
+  }
   DEBUG_ENTER();
 }
 
