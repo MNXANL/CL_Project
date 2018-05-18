@@ -242,7 +242,7 @@ void CodeGenListener::enterReadStmt(AslParser::ReadStmtContext *ctx) {
 }
 void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
   instructionList  code;
-  std::string     addr1 = getAddrDecor(ctx->left_expr());
+  std::string     addr1 = getAddrDecor(ctx->left_expr()); //TODO: HERE IS THE CHANGE FOR TEST 6! read to arrays!
   // std::string     offs1 = getOffsetDecor(ctx->left_expr());
   instructionList code1 = getCodeDecor(ctx->left_expr());
   // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
