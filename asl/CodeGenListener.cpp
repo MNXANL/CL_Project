@@ -159,7 +159,7 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   instructionList code2 = getCodeDecor(ctx->expr());
   // TypesMgr::TypeId tid2 = getTypeDecor(ctx->expr());
 
-  if (offs1 == "") {
+  if (offs1 != "") {
     code = code1 || code2 || instruction::XLOAD(addr1,offs1,  addr2);
   }
   else code = code1 || code2 || instruction::LOAD(addr1, addr2);
@@ -314,8 +314,18 @@ void CodeGenListener::exitWriteString(AslParser::WriteStringContext *ctx) {
 void CodeGenListener::enterArrayAccess(AslParser::ArrayAccessContext *ctx){ 
   DEBUG_ENTER();
 }
-void CodeGenListener::exitArrayAccess(AslParser::ArrayAccessContext *ctx){ 
-
+void CodeGenListener::exitArrayAccess(AslParser::ArrayAccessContext *ctx){
+  std::string addr = getAddrDecor(ctx->expr());
+  instructionList code = getCodeDecor(ctx->expr());
+  std::string size = "%"+codeCounters.newTEMP();
+  std::string offset = "%"+codeCounters.newTEMP();
+  std::string temp = "%"+codeCounters.newTEMP();
+  int s = Types.getSizeOfType(Types.getArrayElemType(getTypeDecor(ctx->ident())));
+  code = code || instruction::ILOAD(size, std::to_string(s)); //REVISE!
+  code = code || instruction::MUL(offset, size, addr); //Fix me
+  code = code || instruction::LOADX(temp, ctx->ident()->ID()->getText(), offset);
+  putCodeDecor(ctx,code);
+  putAddrDecor(ctx,temp);
   DEBUG_EXIT();
 }
 
