@@ -224,10 +224,11 @@ void CodeGenListener::enterProcCall(AslParser::ProcCallContext *ctx) {
   DEBUG_ENTER();
 }
 void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
-  instructionList code;
+  instructionList code = getCodeDecor(ctx->procedure());
   // std::string name = ctx->ident()->ID()->getSymbol()->getText();
-  std::string name = ctx->procedure()->ident()->getText();
-  code = instruction::CALL(name);
+  //std::string name = ctx->procedure()->ident()->getText();
+  ///code = instruction::CALL(name);
+
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
@@ -308,9 +309,12 @@ void CodeGenListener::enterLeft_expr(AslParser::Left_exprContext *ctx) {
   DEBUG_ENTER();
 }
 void CodeGenListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
-  putAddrDecor(ctx, getAddrDecor(ctx->ident()));
-  putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
-  putCodeDecor(ctx, getCodeDecor(ctx->ident()));
+  //if () {
+      putAddrDecor(ctx, getAddrDecor(ctx->ident()));
+    putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
+    putCodeDecor(ctx, getCodeDecor(ctx->ident()));
+  //  }
+  //else {}
   DEBUG_ENTER();
 }
 

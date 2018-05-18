@@ -1,79 +1,85 @@
-function f1
+function f
   params
+    _result
     a
     b
   endparams
 
   vars
-    c 1
-    d 1
-    found 1
+    x 1
+    y 1
+    z 10
   endvars
 
-     %1 = 0
-     found = %1
-     %2 = 0.7
-     %4 = float a
-     %3 = %4 +. %2
-     c = %3
-     %5 = 0
-     d = %5
-     %6 = a + d
-     %8 = float %6
-     %7 = c <. %8
-     %9 = not found
-     %10 = %7 or %9
-     ifFalse %10 goto endif1
+     %2 = 67
+     %3 = a + %2
+     z = %3
+     %4 = 34
+     x = %4
+     %6 = 56
+     %8 = %6 + 
+     z = %8
+     %10 = x < 
+     ifFalse %10 goto then1
+     %11 = 78
+     x = %11
+     writef b
+     writeln
+     goto endif1
+  label then1 :
+     %13 = 99
+     x = %13
+  label endif1 :
+     writei 
+     writeln
+     %16 = 1
+     _result = %16
+     return
+endfunction
+
+function fz
+  params
+    r
+  endparams
+
      goto while1
   label do1 :
-     %13 = 1
-     %14 = b - %13
-     b = %14
-     %15 = 1
-     found = %15
+     %3 = 1
+     %4 = r - %3
+     r = %4
   label while1 :
-     %11 = 0
-     %12 = %11 < b
-     %16 = not %12
-     ifFalse %16 goto do1
-  label endif1 :
-     %17 = 11
-     %18 = b <= %17
-     ifFalse %18 goto endif2
-     writeln
-     writeln
-     writef c
-     writeln
-     writeln
-     
-     %19 = 2
-     %21 = float %19
-     %20 = %21 *. c
-     %22 = 1
-     %24 = float %22
-     %23 = %20 +. %24
-     c = %23
-  label endif2 :
-     writef c
-     writeln
+     %1 = 0
+     %2 = %1 < r
+     %5 = not %2
+     ifFalse %5 goto do1
      return
 endfunction
 
 function main
   vars
     a 1
-    b 1
   endvars
 
-   %1 = 4
-   a = %1
-   %2 = 2
-   %3 = %2 * a
-   %4 = 1
-   %5 = %3 + %4
-   b = %5
-   call f1
-   return
+     pushparam 
+     %1 = 3
+     pushparam %1
+     %2 = 2
+     pushparam %2
+     call f
+     popparam 
+     popparam 
+     popparam %3
+     ifFalse %3 goto endif1
+     %4 = 3.7
+     %6 = float a
+     %5 = %6 +. %4
+     %7 = 4
+     %9 = float %7
+     %8 = %5 +. %9
+     writef %8
+     writeln
+  label endif1 :
+     return
 endfunction
 
 
