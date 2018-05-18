@@ -569,10 +569,23 @@ void CodeGenListener::exitProcedure(AslParser::ProcedureContext *ctx) {
     if (not Types.isVoidFunction(Symbols.getType(ctx->ident()->ID()->getText())) )
         code = code || instruction::PUSH();
     
+    TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
+    int i=0;
     for (auto eCtx : ctx->expr()) {
-        //TODO: implicit casting!
         std::string addr = getAddrDecor(eCtx);
         instructionList codeTmp = getCodeDecor(eCtx);
+        
+        TypesMgr::TypeId paramTy = Types.getParameterType(t1,i++);
+        TypesMgr::TypeId callTy = getTypeDecor(eCtx);
+        if(Types.isFloatTy(paramTy) && Types.isIntegerTy(callTy)){
+            std::string f_addr = "%" + codeCounters.newTEMP();
+            codeTmp = codeTmp || instruction::FLOAT(f_addr, addr);
+            addr = f_addr;
+        }
+        //TODO: implicit casting!
+        
+        
+        
         code = code || codeTmp || instruction::PUSH(addr) ;
     }
     code = code || instruction::CALL(ctx->ident()->ID()->getText());

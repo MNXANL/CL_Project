@@ -2,62 +2,56 @@ function f
   params
     _result
     a
-    b
+    f
   endparams
 
   vars
     x 1
-    y 1
+    b 1
     z 10
   endvars
 
-     %1 = 9
+     %1 = 5
      %2 = 1
      %3 = %2 * %1
-     %4 = 67
-     %5 = a + %4
-     z[%3] = %5
-     %6 = 34
-     x = %6
-     %7 = 3
-     %8 = 1
-     %9 = %8 * %7
-     %10 = 56
-     %11 = 9
-     %12 = 1
-     %13 = %12 * %11
-     %14 = z[%13]
-     %15 = %10 + %14
-     z[%9] = %15
-     %16 = 3
-     %17 = 1
-     %18 = %17 * %16
-     %19 = z[%18]
-     %20 = x < %19
-     ifFalse %20 goto then1
-     %21 = 78
-     x = %21
-     writef b
+     readi z
+     %4 = 5
+     %5 = 1
+     %6 = %5 * %4
+     %7 = z[%6]
+     %8 = 88
+     %9 = %7 + %8
+     writei %9
+     readi b
+     readi f
+     ifFalse b goto endif1
+     %10 = 'h'
+     writec %10
      writeln
-     goto endif1
-  label then1 :
-     %23 = 99
-     x = %23
+     %10 = '\t'
+     writec %10
+     %10 = 'l'
+     writec %10
+     %10 = '\\'
+     writec %10
+     %10 = 'a'
+     writec %10
+     %11 = -. f
+     %12 = -. %11
+     %13 = -. %12
+     writef %13
+     writeln
   label endif1 :
-     %24 = 3
-     %25 = 1
-     %26 = %25 * %24
-     %27 = z[%26]
-     writei %27
-     writeln
-     %29 = 1
-     _result = %29
+     %15 = 1
+     _result = %15
      return
 endfunction
 
 function fz
   params
+    _result
     r
+    u
   endparams
 
      goto while1
@@ -70,34 +64,68 @@ function fz
      %2 = %1 < r
      %5 = not %2
      ifFalse %5 goto do1
+     %6 = 0
+     %7 = r == %6
+     ifFalse %7 goto endif1
+     pushparam 
+     %8 = 55555
+     pushparam %8
+     %9 = 1
+     %10 = 4
+     %11 = %9 / %10
+     %12 = float %11
+     pushparam %12
+     call f
+     popparam 
+     popparam 
+     popparam %13
+  label endif1 :
+     %14 = 3
+     %15 = r + %14
+     %17 = float %15
+     %16 = %17 *. u
+     _result = %16
      return
 endfunction
 
 function main
   vars
     a 1
+    q 1
   endvars
 
-     pushparam 
-     %1 = 3
-     pushparam %1
-     %2 = 2
-     pushparam %2
-     call f
-     popparam 
-     popparam 
-     popparam %3
-     ifFalse %3 goto endif1
-     %4 = 3.7
-     %6 = float a
-     %5 = %6 +. %4
-     %7 = 4
-     %9 = float %7
-     %8 = %5 +. %9
-     writef %8
-     writeln
-  label endif1 :
-     return
+   %1 = 0
+   q = %1
+   pushparam 
+   %2 = 3
+   %3 = 4
+   %4 = %2 + %3
+   pushparam %4
+   pushparam 
+   %5 = 4444
+   pushparam %5
+   %6 = 2
+   %8 = float %6
+   %7 = q +. %8
+   pushparam %7
+   call fz
+   popparam 
+   popparam 
+   popparam %9
+   pushparam %9
+   call fz
+   popparam 
+   popparam 
+   popparam %10
+   q = %10
+   %11 = 3.7
+   %12 = q +. %11
+   %13 = 4
+   %15 = float %13
+   %14 = %12 +. %15
+   writef %14
+   writeln
+   return
 endfunction
 
 
