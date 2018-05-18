@@ -97,6 +97,14 @@ public:
 
   void enterWriteString(AslParser::WriteStringContext *ctx);
   void exitWriteString(AslParser::WriteStringContext *ctx);
+  
+  
+  void enterArray(AslParser::ArrayContext *ctx);
+  void exitArray(AslParser::ArrayContext *ctx);
+
+  void enterArrayAccess(AslParser::ArrayAccessContext *ctx);
+  void exitArrayAccess(AslParser::ArrayAccessContext *ctx);
+
 
   void enterLeft_expr(AslParser::Left_exprContext *ctx);
   void exitLeft_expr(AslParser::Left_exprContext *ctx);
