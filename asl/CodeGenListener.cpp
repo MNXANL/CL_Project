@@ -306,13 +306,13 @@ void CodeGenListener::exitWriteString(AslParser::WriteStringContext *ctx) {
 }
 
 
-void CodeGenListener::enterArray(AslParser::ArrayContext *ctx){ }
-void CodeGenListener::exitArray(AslParser::ArrayContext *ctx){ }
 
-
-
-void CodeGenListener::enterArrayAccess(AslParser::ArrayAccessContext *ctx){ }
-void CodeGenListener::exitArrayAccess(AslParser::ArrayAccessContext *ctx){ }
+void CodeGenListener::enterArrayAccess(AslParser::ArrayAccessContext *ctx){ 
+  DEBUG_ENTER();
+}
+void CodeGenListener::exitArrayAccess(AslParser::ArrayAccessContext *ctx){ 
+  DEBUG_EXIT();
+}
 
 
 

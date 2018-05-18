@@ -99,9 +99,6 @@ public:
   void exitWriteString(AslParser::WriteStringContext *ctx);
   
   
-  void enterArray(AslParser::ArrayContext *ctx);
-  void exitArray(AslParser::ArrayContext *ctx);
-
   void enterArrayAccess(AslParser::ArrayAccessContext *ctx);
   void exitArrayAccess(AslParser::ArrayAccessContext *ctx);
 

@@ -132,9 +132,9 @@ OBJECTS		= $(SOURCE.c:.c=.o) $(SOURCE.cc:.cc=.o) $(SOURCE.cpp:.cpp=.o)
 # ==== C++ stuff ====
 
 # Which compiler we are going to use
-CCC	= g++-5
-CXX	= g++-5
-CC 	= g++-5
+CCC	= g++
+CXX	= g++
+CC 	= g++
 
 # Tell compiler:
 # ... where to search for additional header files ...
