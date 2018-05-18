@@ -151,14 +151,18 @@ void CodeGenListener::enterAssignStmt(AslParser::AssignStmtContext *ctx) {
 void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   instructionList  code;
   std::string     addr1 = getAddrDecor(ctx->left_expr());
-  // std::string     offs1 = getOffsetDecor(ctx->left_expr());
+  std::string     offs1 = getOffsetDecor(ctx->left_expr());
   instructionList code1 = getCodeDecor(ctx->left_expr());
   // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
   std::string     addr2 = getAddrDecor(ctx->expr());
   // std::string     offs2 = getOffsetDecor(ctx->expr());
   instructionList code2 = getCodeDecor(ctx->expr());
   // TypesMgr::TypeId tid2 = getTypeDecor(ctx->expr());
-  code = code1 || code2 || instruction::LOAD(addr1, addr2);
+
+  if (offs1 == "") {
+    code = code1 || code2 || instruction::XLOAD(addr1,offs1,  addr2);
+  }
+  else code = code1 || code2 || instruction::LOAD(addr1, addr2);
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
@@ -323,13 +327,13 @@ void CodeGenListener::enterLeft_expr(AslParser::Left_exprContext *ctx) {
 void CodeGenListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
   // RECYCLE
   if ( ctx->expr() ) {
-    TypesMgr::TypeId t1 = getArrayElemType(getTypeDecor(ctx->ident()));
-    int SIZE = getSizeOfType(t1);
+    TypesMgr::TypeId t1 = Types.getArrayElemType(getTypeDecor(ctx->ident()));
+    int SIZE = Types.getSizeOfType(t1);
     instructionList code = getCodeDecor(ctx->expr());
     std::string temp = "%"+codeCounters.newTEMP();
     std::string offset = "%"+codeCounters.newTEMP();
     std::string addr = getAddrDecor(ctx->expr());
-    code = code || instruction::ILOAD(temp, SIZE);
+    code = code || instruction::ILOAD(temp, std::to_string(SIZE));
     code = code || instruction::MUL(offset, temp, addr); //Fix me
     putOffsetDecor(ctx, offset); //TODO: not good, probably will have to change
     putAddrDecor(ctx, getAddrDecor(ctx->ident()));
