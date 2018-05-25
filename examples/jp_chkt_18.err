@@ -6,6 +6,6 @@ Line 6:2 error: The number of parameters in the call to 'g' does not match.
 Line 12:4 error: The number of parameters in the call to 'f' does not match.
 Line 12:2 error: The number of parameters in the call to 'g' does not match.
 Line 18:6 error: Array access to a non array operand.
-Line 18:8 error: Array access witn non integer index.
+Line 18:8 error: Array access with non integer index.
 Line 25:4 error: Parameter #1 with incompatible types in call to 'p'.
 Line 26:4 error: Parameter #1 with incompatible types in call to 'p'.
