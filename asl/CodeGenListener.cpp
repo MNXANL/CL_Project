@@ -160,7 +160,15 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   // TypesMgr::TypeId tid2 = getTypeDecor(ctx->expr());
 
   if (offs1 != "") {
-    code = code1 || code2 || instruction::XLOAD(addr1,offs1,  addr2);
+    if (not Symbols.isParameterClass(ctx->left_expr()->ident()->ID()->getText())) {
+        //std::cerr << "CHIVATO 1 " << ctx->left_expr()->ident()->ID()->getText() << " -> "  << std::endl;
+        code = code1 || code2 || instruction::XLOAD(addr1,offs1,  addr2);
+    }
+    else {
+        //std::cerr << "CHIVATO 2 " << ctx->left_expr()->ident()->ID()->getText() << " -> " <<  std::endl;
+        std::string tmp = "%" + codeCounters.newTEMP();
+        code = code1 || code2 || instruction::LOAD(tmp,  addr1) || instruction::XLOAD(tmp,offs1,  addr2);
+    }
   }
   else code = code1 || code2 || instruction::LOAD(addr1, addr2);
   putCodeDecor(ctx, code);
@@ -243,10 +251,33 @@ void CodeGenListener::enterReadStmt(AslParser::ReadStmtContext *ctx) {
 void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
   instructionList  code;
   std::string     addr1 = getAddrDecor(ctx->left_expr()); //TODO: HERE IS THE CHANGE FOR TEST 6! read to arrays!
-  // std::string     offs1 = getOffsetDecor(ctx->left_expr());
+  
+  std::string     offs1 = getOffsetDecor(ctx->left_expr());
   instructionList code1 = getCodeDecor(ctx->left_expr());
-  // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
-  code = code1 || instruction::READI(addr1);
+  TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
+  bool isArray = false;
+  std::string tmp;
+  if (ctx->left_expr()->expr()){
+      isArray = true;
+      tmp = addr1;
+      addr1 = "%"+codeCounters.newTEMP();
+  }
+  if (Types.isIntegerTy(tid1)) {
+      code = code1 || instruction::READI(addr1);
+  }
+  if (Types.isCharacterTy(tid1)) {
+      code = code1 || instruction::READC(addr1);
+  }
+  if (Types.isFloatTy(tid1)) {
+      code = code1 || instruction::READF(addr1);
+  }
+  if (Types.isBooleanTy(tid1)) {
+      code = code1 || instruction::READI(addr1);
+  }
+  if(isArray) {
+      code = code ||  instruction::XLOAD(tmp, offs1, addr1);   
+  }
+  
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
@@ -323,7 +354,16 @@ void CodeGenListener::exitArrayAccess(AslParser::ArrayAccessContext *ctx){
   int s = Types.getSizeOfType(Types.getArrayElemType(getTypeDecor(ctx->ident())));
   code = code || instruction::ILOAD(size, std::to_string(s)); //REVISE!
   code = code || instruction::MUL(offset, size, addr); //Fix me
-  code = code || instruction::LOADX(temp, ctx->ident()->ID()->getText(), offset);
+  if (not Symbols.isParameterClass(ctx->ident()->ID()->getText())) {
+    code = code || instruction::LOADX(temp, ctx->ident()->ID()->getText(), offset);
+  }
+  else {
+    std::string temp2 = "%"+codeCounters.newTEMP();
+    
+    code = code || instruction::LOAD(temp2, ctx->ident()->ID()->getText()) || instruction::LOADX(temp,   temp2, offset);
+    
+      
+  }
   putCodeDecor(ctx,code);
   putAddrDecor(ctx,temp);
   DEBUG_EXIT();
@@ -583,7 +623,11 @@ void CodeGenListener::exitProcedure(AslParser::ProcedureContext *ctx) {
             addr = f_addr;
         }
         //TODO: implicit casting!
-        
+        if (Types.isArrayTy(paramTy)) {
+            std::string f_addr = "%" + codeCounters.newTEMP();
+            codeTmp = codeTmp || instruction::ALOAD(f_addr, addr);
+            addr = f_addr;
+        }
         
         
         code = code || codeTmp || instruction::PUSH(addr) ;

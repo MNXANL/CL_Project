@@ -112,8 +112,8 @@ void SymbolsListener::exitParams(AslParser::ParamsContext *ctx){
      if (Symbols.findInCurrentScope(ident)) {
       Errors.declaredIdent(ctx->ID(i));
      } else {
-	TypesMgr::TypeId t = getTypeDecor(ctx->type(i));
-	Symbols.addLocalVar(ident, t);
+        TypesMgr::TypeId t = getTypeDecor(ctx->type(i));
+        Symbols.addParameter(ident, t);
      }
   }
   DEBUG_EXIT();
