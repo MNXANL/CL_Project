@@ -422,9 +422,15 @@ void CodeGenListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
       code = code || instruction::SUB(temp, addr1, addr2);
     else if (ctx->DIV())
       code = code || instruction::DIV(temp, addr1, addr2);
-    /*else if (ctx->MOD())
-      code = code || instruction::MOD(temp, addr1, addr2);
-    else */
+    else if (ctx->MOD()) {
+      std::string temp1 = "%"+codeCounters.newTEMP();
+      std::string temp2 = "%"+codeCounters.newTEMP();
+      code = code || instruction::DIV(temp1, addr1, addr2);
+      code = code || instruction::MUL(temp2, temp1, addr2);
+      code = code || instruction::SUB(temp, addr1, temp2);
+      
+    }
+    //else 
 
   } 
   else {

@@ -1,0 +1,31 @@
+function main
+  vars
+    n1 1
+    n2 1
+    tmp 1
+  endvars
+
+     %1 = 0
+     n1 = %1
+     %2 = 0
+     n2 = %2
+     goto while1
+  label do1 :
+     readi n1
+     readi n2
+     %7 = n1 / n2
+     %8 = %7 * n2
+     %6 = n1 - %8
+     tmp = %6
+     writei tmp
+     writeln
+  label while1 :
+     %3 = 500
+     %5 = n1 == %3
+     %4 = not %5
+     %10 = not %4
+     ifFalse %10 goto do1
+     return
+endfunction
+
+

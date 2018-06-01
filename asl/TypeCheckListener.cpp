@@ -320,17 +320,26 @@ void TypeCheckListener::enterArithmetic(AslParser::ArithmeticContext *ctx) {
 void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
   TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
+  
   if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
       ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2)))) {
 	Errors.incompatibleOperator(ctx->op);
 	//putTypeDecor(ctx, Types.createErrorTy());
 	//putIsLValueDecor(ctx, false);
   }
+  
+  if (ctx->MOD() and
+      ((not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1))) or
+      ((not Types.isErrorTy(t2)) and (not Types.isIntegerTy(t2))))
+	Errors.incompatibleOperator(ctx->op); //should work
+  
   TypesMgr::TypeId t;
-  if(Types.isFloatTy(t1) or Types.isFloatTy(t2)) 
+  if (ctx->MOD()) t = Types.createIntegerTy();
+  else if(Types.isFloatTy(t1) or Types.isFloatTy(t2)) 
     t = Types.createFloatTy();
   else 
-    t = Types.createIntegerTy(); 
+    t = Types.createIntegerTy();
+  
   //if (Types.isErrorTy(t1) or Types.isErrorTy(t2)) t = Types.createErrorTy();
   //TODO: CHANGE! THIS SHOULD BE: INFER FROM OPERATOR! Can it actually do so?
   putTypeDecor(ctx, t);
