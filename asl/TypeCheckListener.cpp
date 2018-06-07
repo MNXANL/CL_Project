@@ -326,13 +326,15 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
 	Errors.incompatibleOperator(ctx->op);
 	//putTypeDecor(ctx, Types.createErrorTy());
 	//putIsLValueDecor(ctx, false);
-  }
-  
-  if (ctx->MOD() and
-      ((not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1))) or
-      ((not Types.isErrorTy(t2)) and (not Types.isIntegerTy(t2))))
+  } else
+  if ((ctx->MOD()) and (
+      ((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
+      ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2)))
+      )
+      ){
 	Errors.incompatibleOperator(ctx->op); //should work
-  
+    std::cerr << "PN" << std::endl;
+  }
   TypesMgr::TypeId t;
   if (ctx->MOD()) t = Types.createIntegerTy();
   else if(Types.isFloatTy(t1) or Types.isFloatTy(t2)) 
